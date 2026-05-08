@@ -24,6 +24,13 @@
             margin: 40px 0 15px 0; /* More space above headers */
             padding: 0 10px 8px 10px; /*Padding on the left to clear the Sidebar Tab */ 
             font-weight: bold; }
+        /* Styling the images inside section headers */
+        .section-header img {
+            height: 24px; /* Matches text height */
+            width: auto;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
         .loop-btn { font-size: 20px; cursor: pointer; opacity: 0.2; transition: 0.2s; }
         .loop-btn.active { opacity: 1; color: var(--accent); }
 
@@ -118,6 +125,34 @@
             z-index: 1999;
         }
 
+
+        /* General Icon Class */
+        .icon {
+            width: 24px;   /* Adjust this to change size app-wide */
+            height: 24px;
+            object-fit: contain;
+            vertical-align: middle;
+        }
+        
+        /* Specific size for the Play button since it's bigger */
+        .play-btn .icon {
+            width: 30px;
+            height: 30px;
+        }
+
+        /* User & Info Icons in the Top Nav */
+        .user-icon img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+        }
+        
+        /* Hide the background circle/border of the old user-icon if you want */
+        .user-icon {
+            border: none;
+            background: transparent;
+        }
+
         /* Responsive Grid Logic */
         .grid { 
             display: grid; 
@@ -158,6 +193,15 @@
             transition: all 0.2s ease;
             color: white;
         }
+
+        /* Styling for the PNG inside the loop sphere */
+        .card-loop-btn img {
+            width: 60%; /* Icon stays centered and comfortable inside the circle */
+            height: 60%;
+            object-fit: contain;
+            pointer-events: none; /* Clicking the image clicks the button */
+        }
+                
         /* Active State (Glowing Red) */
         .card-loop-btn.active {
             background: var(--accent);
@@ -291,17 +335,25 @@
         <h1 style="text-align: center; margin: 0 0 5px 0; color: var(--accent); font-size: 24px; letter-spacing: 1px;">Da Soundboard</h1>
         <div class="top-nav">
             <!-- Sidebar button is now the floating tab, so we just have info/user here -->
-            <div class="user-icon" onclick="openModal('webInfoModal')" style="font-size: 16px;">❓</div>
+            <div class="user-icon" onclick="openModal('webInfoModal')">
+                <img src="YOUR_ABOUT_PNG_LINK">
+            </div>
             <h3 id="displayUser" style="margin:0; font-size: 14px; color: #888;">Guest</h3>
-            <div class="user-icon" onclick="openModal('userModal')">👤</div>
+            <div class="user-icon" onclick="openModal('userModal')">
+                <img src="YOUR_USER_PNG_LINK">
+            </div>
         </div>
     </div>
 
-    <div id="sfx-anchor" class="section-header"><span>🔊 SFX</span></div>
+    <div id="sfx-anchor" class="section-header">
+        <span><img src="YOUR_SFX_PNG_LINK"> SFX</span>
+    </div>
     <div id="grid-sfx" class="grid"></div>
     
-    <div id="music-anchor" class="section-header"><span>🎵 MUSIC</span></div>
-    <div id="grid-music" class="grid"></div>
+    <div id="music-anchor" class="section-header">
+        <span><img src="YOUR_MUSIC_PNG_LINK"> MUSIC</span>
+    </div>
+    <div id="grid-sfx" class="grid"></div>
 
     <!-- User Modal -->
     <div id="userModal" class="overlay" onclick="closeModal('userModal')">
@@ -478,12 +530,14 @@
                 <!-- Sphere Loop Button -->
                 <div class="card-loop-btn ${item.isLooping ? 'active' : ''}" 
                      id="loop-btn-${item.id}" 
-                     onclick="toggleIndividualLoop(${item.id})">🔁</div>
+                     onclick="toggleIndividualLoop(${item.id})">
+                     <img src="YOUR_LOOP_PNG_LINK">
+                </div>
                      
                 <img class="thumb" src="${item.image}" onclick="setImg(${item.id})">
                 <div class="card-title-container" onclick="this.querySelector('.card-title').focus()">
                     <span class="card-title" contenteditable="true" onblur="updateName(${item.id}, this)">${item.displayName}</span>
-                    <span class="edit-icon">✏️</span>
+                    <img src="YOUR_PENCIL_PNG_LINK" class="edit-icon" style="width:12px; height:12px; margin-left:5px;">
                 </div>
                 <input type="range" id="range-${item.id}" value="0" step="0.1" oninput="doSeek(${item.id})">
                 <div style="display: flex; justify-content: space-between; font-size: 10px; color: #888; font-family: monospace; margin-bottom: 5px;">
@@ -491,9 +545,9 @@
                     <span id="total-${item.id}">0:00</span>
                 </div>
                 <div class="controls">
-                    <button class="btn" onclick="showInfo(${item.id})">ℹ️</button>
-                    <button class="btn play-btn" id="play-${item.id}" onclick="pPlay(${item.id})">▶️</button>
-                    <button class="btn" onclick="delItem(${item.id})">🗑️</button>
+                    <button class="btn" onclick="showInfo(${item.id})"><img src="INFO_LINK" class="icon"></button>
+                    <button class="btn play-btn" id="play-${item.id}" onclick="pPlay(${item.id})"><img src="PLAY_LINK" class="icon"></button>
+                    <button class="btn" onclick="delItem(${item.id})"><img src="TRASH_LINK" class="icon"></button>
                 </div>
                 <audio id="aud-${item.id}" src="${item.data}" ${item.isLooping ? 'loop' : ''}></audio>
             `;
@@ -519,7 +573,7 @@
                     a.play();
                 } else {
                     // Manual Cleanup to move card down
-                    document.getElementById(`play-${item.id}`).innerText = "▶️";
+                    document.getElementById(`play-${item.id}`).innerHTML = `<img src="YOUR_PLAY_PNG_LINK" class="icon">`;
                     div.dataset.playing = "false";
                     div.style.border = "1px solid #222";
                     div.style.boxShadow = "none";
@@ -656,7 +710,7 @@
             if (a.paused) { 
                 // START PLAYING
                 a.play(); 
-                b.innerText = "⏸️";
+                b.innerHTML = `<img src="YOUR_PAUSE_PNG_LINK" class="icon">`;
                 card.dataset.playing = "true"; // Mark as playing
                 
                 // Jump to absolute top
@@ -667,7 +721,7 @@
             } else { 
                 // STOP PLAYING
                 a.pause(); 
-                b.innerText = "▶️";
+                b.innerHTML = `<img src="YOUR_PLAY_PNG_LINK" class="icon">`;
                 card.dataset.playing = "false"; // Mark as stopped
                 
                 // Find all cards in this grid that are still playing
