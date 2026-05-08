@@ -336,7 +336,7 @@
     <!-- Website Info Modal -->
     <div id="webInfoModal" class="overlay" onclick="closeModal('webInfoModal')">
         <div class="modal" onclick="event.stopPropagation()">
-            <h4>About Da Media Player</h4>
+            <h4>About Da Soundboard</h4>
             <p style="font-size:12px; color:#aaa; text-align: left; line-height: 1.6;">
                 <strong>Version:</strong> 1.0<br>
                 <strong>Developer:</strong> Zolryq<br><br>
@@ -398,7 +398,8 @@
                     data: ev.target.result,
                     type: currentType,
                     dateAdded: new Date().toLocaleDateString(), // Add this line
-                    image: "https://via.placeholder.com/150/222/555?text=Media"
+                    size: file.size,
+                    image: "https://cdn.discordapp.com/attachments/1502314230592966656/1502325673094680686/4ADA4F22-7C87-46EA-A9E3-4F2BEC1088D9.png?ex=69ff4d50&is=69fdfbd0&hm=c29fb8fa442ae70b69350e3be99442a990f4e0a89f91e9f2b38803130d13cb60&"
                 });
                 tx.oncomplete = loadMedia;
             };
@@ -573,18 +574,30 @@
                 
                 // Format the duration nicely
                 const duration = fmtTime(aud.duration);
-                
-                // Check if image is the default placeholder
-                const isDefaultImg = item.image.includes('placeholder.com');
-                const imgSource = isDefaultImg ? "N/A (Default)" : "User Uploaded";
+
+                // Helper to format bytes to KB/MB
+                const formatBytes = (bytes) => {
+                    if (!bytes) return "Unknown";
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                };
         
                 document.getElementById('infoContent').innerHTML = `
-                    <p><strong>🏷️ Name:</strong> ${item.displayName}</p>
-                    <p><strong>📁 Original:</strong> ${item.originalName}</p>
-                    <p><strong>⏱️ Duration:</strong> ${duration}</p>
-                    <p><strong>📅 Uploaded:</strong> ${item.dateAdded || 'Unknown'}</p>
-                    <p><strong>🖼️ Cover Art:</strong> ${imgSource}</p>
-                    <p><strong>🆔 Internal ID:</strong> #${item.id}</p>
+                    <div style="display: grid; gap: 10px;">
+                        <div>
+                            <span style="color: var(--accent); font-weight: bold; font-size: 10px; text-transform: uppercase;">Current Name</span>
+                            <div style="color: white; font-size: 16px;">${item.displayName}</div>
+                        </div>
+                        <hr style="border: 0; border-top: 1px solid #333; margin: 5px 0;">
+                        <p style="margin: 2px 0;"><strong>📁 Original:</strong> ${item.originalName}</p>
+                        <p style="margin: 2px 0;"><strong>⏱️ Duration:</strong> ${duration}</p>
+                        <p style="margin: 2px 0;"><strong>⚖️ Size:</strong> ${formatBytes(item.size)}</p>
+                        <p style="margin: 2px 0;"><strong>📅 Uploaded:</strong> ${item.dateAdded || 'Earlier Today'}</p>
+                        <p style="margin: 2px 0;"><strong>🆔 Internal ID:</strong> #${item.id}</p>
+                        <p style="margin: 2px 0;"><strong>🏷️ Category:</strong> ${item.type.toUpperCase()}</p>
+                    </div>
                 `;
                 openModal('infoModal');
             };
