@@ -336,22 +336,22 @@
         <div class="top-nav">
             <!-- Sidebar button is now the floating tab, so we just have info/user here -->
             <div class="user-icon" onclick="openModal('webInfoModal')">
-                <img src="YOUR_ABOUT_PNG_LINK">
+                <img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341923199909948/FC8A5BCF-C4DD-41A5-AD30-12ABE7AEA63A.png?ex=69ff5c72&is=69fe0af2&hm=4b388b079b5b7c3f8daf8e60c9a282015106072234966a230b2a1763653457fc&">
             </div>
             <h3 id="displayUser" style="margin:0; font-size: 14px; color: #888;">Guest</h3>
             <div class="user-icon" onclick="openModal('userModal')">
-                <img src="YOUR_USER_PNG_LINK">
+                <img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341922977742889/1807C57A-DA37-4C6D-928B-63C65F8A96C5.png?ex=69ff5c72&is=69fe0af2&hm=840020fc735ab7d6c8bb1bbb00fbd72f07b227538101af115ed4fd330de2cdd6&">
             </div>
         </div>
     </div>
 
     <div id="sfx-anchor" class="section-header">
-        <span><img src="YOUR_SFX_PNG_LINK"> SFX</span>
+        <span><img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502343732781908178/5015DB5D-8FBF-4861-A890-7FB4CC2C4974.png?ex=69ff5e22&is=69fe0ca2&hm=707aee154fd6f5017998a17ab6e8d335ba272501e2b85ea6752518d4ae15bcec&"> SFX</span>
     </div>
     <div id="grid-sfx" class="grid"></div>
     
     <div id="music-anchor" class="section-header">
-        <span><img src="YOUR_MUSIC_PNG_LINK"> MUSIC</span>
+        <span><img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502343733004341429/BEDF79F4-CBD4-43BA-86CD-36FDEB48D21D.png?ex=69ff5e22&is=69fe0ca2&hm=8a5515ae8a00626efa9be77434b1cb0b355d918a2f2c878f4818de76abf6b4db&"> MUSIC</span>
     </div>
     <div id="grid-sfx" class="grid"></div>
 
@@ -531,13 +531,13 @@
                 <div class="card-loop-btn ${item.isLooping ? 'active' : ''}" 
                      id="loop-btn-${item.id}" 
                      onclick="toggleIndividualLoop(${item.id})">
-                     <img src="YOUR_LOOP_PNG_LINK">
+                     <img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502344803306700992/8B23509B-DFD5-4F45-BA2F-AE55C761DEBC.png?ex=69ff5f21&is=69fe0da1&hm=2b2da820308f1b3e015e0fb2ea93d1202dd1ae7358da2dbaebd653502f967380&">
                 </div>
                      
                 <img class="thumb" src="${item.image}" onclick="setImg(${item.id})">
                 <div class="card-title-container" onclick="this.querySelector('.card-title').focus()">
                     <span class="card-title" contenteditable="true" onblur="updateName(${item.id}, this)">${item.displayName}</span>
-                    <img src="YOUR_PENCIL_PNG_LINK" class="edit-icon" style="width:12px; height:12px; margin-left:5px;">
+                    <img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502344369670197338/3CFD3480-0211-417A-8DFD-6F0C82A6FFA8.png?ex=69ff5eb9&is=69fe0d39&hm=9147ca382fb7aad686ef00b242645ba2fa6a95deaa2f5529822ce60cb6a62c12&" class="edit-icon" style="width:12px; height:12px; margin-left:5px;">
                 </div>
                 <input type="range" id="range-${item.id}" value="0" step="0.1" oninput="doSeek(${item.id})">
                 <div style="display: flex; justify-content: space-between; font-size: 10px; color: #888; font-family: monospace; margin-bottom: 5px;">
@@ -545,9 +545,9 @@
                     <span id="total-${item.id}">0:00</span>
                 </div>
                 <div class="controls">
-                    <button class="btn" onclick="showInfo(${item.id})"><img src="INFO_LINK" class="icon"></button>
-                    <button class="btn play-btn" id="play-${item.id}" onclick="pPlay(${item.id})"><img src="PLAY_LINK" class="icon"></button>
-                    <button class="btn" onclick="delItem(${item.id})"><img src="TRASH_LINK" class="icon"></button>
+                    <button class="btn" onclick="showInfo(${item.id})"><img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341923199909948/FC8A5BCF-C4DD-41A5-AD30-12ABE7AEA63A.png?ex=69ff5c72&is=69fe0af2&hm=4b388b079b5b7c3f8daf8e60c9a282015106072234966a230b2a1763653457fc&" class="icon"></button>
+                    <button class="btn play-btn" id="play-${item.id}" onclick="pPlay(${item.id})"><img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341923644637376/FF9E85C5-3C39-4B80-B55D-BE5A935EDCE4.png?ex=69ff5c72&is=69fe0af2&hm=73a568fade8c38ca2ba46351d296196729de0b34f947643f5cab3241c568523d&" class="icon"></button>
+                    <button class="btn" onclick="delItem(${item.id})"><img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341922742735038/C5B3F949-F477-4E70-AB33-562E7F4BA78B.png?ex=69ff5c72&is=69fe0af2&hm=313e979928ecf4879f2a549293454b3c56eb44d78cc292d4a3269233db3f4fa4&" class="icon"></button>
                 </div>
                 <audio id="aud-${item.id}" src="${item.data}" ${item.isLooping ? 'loop' : ''}></audio>
             `;
@@ -573,7 +573,7 @@
                     a.play();
                 } else {
                     // Manual Cleanup to move card down
-                    document.getElementById(`play-${item.id}`).innerHTML = `<img src="YOUR_PLAY_PNG_LINK" class="icon">`;
+                    document.getElementById(`play-${item.id}`).innerHTML = `<img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341923644637376/FF9E85C5-3C39-4B80-B55D-BE5A935EDCE4.png?ex=69ff5c72&is=69fe0af2&hm=73a568fade8c38ca2ba46351d296196729de0b34f947643f5cab3241c568523d&" class="icon">`;
                     div.dataset.playing = "false";
                     div.style.border = "1px solid #222";
                     div.style.boxShadow = "none";
@@ -710,7 +710,7 @@
             if (a.paused) { 
                 // START PLAYING
                 a.play(); 
-                b.innerHTML = `<img src="YOUR_PAUSE_PNG_LINK" class="icon">`;
+                b.innerHTML = `<img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341923443048478/89F23901-D9B2-4769-B106-663A7461F4B3.png?ex=69ff5c72&is=69fe0af2&hm=b86ee5afcf183c320e50ad0c48bc610001042e33f14d3a32df9f08597742343a&" class="icon">`;
                 card.dataset.playing = "true"; // Mark as playing
                 
                 // Jump to absolute top
@@ -721,7 +721,7 @@
             } else { 
                 // STOP PLAYING
                 a.pause(); 
-                b.innerHTML = `<img src="YOUR_PLAY_PNG_LINK" class="icon">`;
+                b.innerHTML = `<img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341923644637376/FF9E85C5-3C39-4B80-B55D-BE5A935EDCE4.png?ex=69ff5c72&is=69fe0af2&hm=73a568fade8c38ca2ba46351d296196729de0b34f947643f5cab3241c568523d&" class="icon">`;
                 card.dataset.playing = "false"; // Mark as stopped
                 
                 // Find all cards in this grid that are still playing
