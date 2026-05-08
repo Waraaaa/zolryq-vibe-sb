@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Zolryq Hub Lite</title>
+    <title>Zolryq Sound Media Player</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <style>
         :root { --bg: #0a0a0a; --card: #161616; --accent: #ff3e3e; --text: #e0e0e0; }
@@ -63,6 +63,17 @@
             <h4>File Details</h4>
             <p id="infoContent" style="font-size:12px; color:#aaa; word-break:break-all"></p>
             <button class="btn" style="width:100%" onclick="closeModal('infoModal')">Close</button>
+        </div>
+    </div>
+
+    <!-- Image Upload Modal -->
+    <div id="imgModal" class="overlay" onclick="closeModal('imgModal')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h4>Update Cover Art</h4>
+            <p style="font-size:11px; color:#888;">Recommended: 1:1 Ratio (Square)<br>Size: 300x300px or 500x500px</p>
+            <button class="btn" style="width:100%; background:var(--accent); padding:15px;" onclick="document.getElementById('imgInput').click()">📁 Choose Image</button>
+            <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="processImg(event)">
+            <button class="btn" style="width:100%; margin-top:10px;" onclick="closeModal('imgModal')">Cancel</button>
         </div>
     </div>
 
@@ -222,12 +233,33 @@
             document.getElementById(`loop${type.charAt(0).toUpperCase()+type.slice(1)}`).classList.toggle('active', loops[type]);
         }
 
+        let editingId = null; // Track which song is getting a new image
+
         function setImg(id) {
-            const url = prompt("Paste Image URL:");
-            if(!url) return;
-            const tx = db.transaction("media", "readwrite");
-            const st = tx.objectStore("media");
-            st.get(id).onsuccess = e => { let d = e.target.result; d.image = url; st.put(d); loadMedia(); };
+            editingId = id;
+            openModal('imgModal');
+        }
+        
+        function processImg(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+        
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const tx = db.transaction("media", "readwrite");
+                const st = tx.objectStore("media");
+                
+                st.get(editingId).onsuccess = event => {
+                    let data = event.target.result;
+                    data.image = ev.target.result; // Save the actual image data
+                    st.put(data);
+                    tx.oncomplete = () => {
+                        loadMedia(); // Refresh UI
+                        closeModal('imgModal');
+                    };
+                };
+            };
+            reader.readAsDataURL(file);
         }
     </script>
 </body>
