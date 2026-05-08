@@ -7,7 +7,13 @@
         :root { --bg: #0a0a0a; --card: #161616; --accent: #ff3e3e; --text: #e0e0e0; }
         body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; padding: 15px; margin: 0; padding-bottom: 120px; }
         
-        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .top-nav { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            padding: 0 10px;
+        }
         .user-icon { background: #222; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #444; font-size: 20px; }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; margin: 20px 0 10px; padding-bottom: 8px; font-weight: bold; }
@@ -37,8 +43,12 @@
 </head>
 <body>
 
+    <h1 style="text-align: center; margin: 10px 0 5px 0; color: var(--accent); font-size: 24px;">Da Soundboard</h1>
+    
     <div class="top-nav">
-        <h3 id="displayUser" style="margin:0; font-size: 16px;">Guest</h3>
+        <!-- New Website Info Button on the left -->
+        <div class="user-icon" onclick="openModal('webInfoModal')" style="font-size: 16px;">❓</div>
+        <h3 id="displayUser" style="margin:0; font-size: 14px; color: #888;">Guest</h3>
         <div class="user-icon" onclick="openModal('userModal')">👤</div>
     </div>
 
@@ -74,6 +84,21 @@
             <button class="btn" style="width:100%; background:var(--accent); padding:15px;" onclick="document.getElementById('imgInput').click()">📁 Choose Image</button>
             <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="processImg(event)">
             <button class="btn" style="width:100%; margin-top:10px;" onclick="closeModal('imgModal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Website Info Modal -->
+    <div id="webInfoModal" class="overlay" onclick="closeModal('webInfoModal')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h4>About Da Soundboard</h4>
+            <p style="font-size:12px; color:#aaa; text-align: left; line-height: 1.6;">
+                <strong>Version:</strong> 1.0 (Lite)<br>
+                <strong>Developer ID:</strong> zolryq<br><br>
+                This is a private media player designed for fandom use. All sounds are stored locally on your iPad's IndexedDB. 
+                <br><br>
+                <em>Tip: Add this page to your Home Screen for a full-app experience.</em>
+            </p>
+            <button class="btn" style="width:100%" onclick="closeModal('webInfoModal')">Close</button>
         </div>
     </div>
 
