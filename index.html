@@ -67,11 +67,18 @@
                 <!-- Text injected via JS -->
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
-                <button class="btn" style="background: #333;" onclick="exportLibrary()">Backup (.zolryq)</button>
-                <button class="btn" style="background: #333;" onclick="document.getElementById('importInput').click()">Restore</button>
+            <div class="settings-section">
+                <h3>Data Sharing</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <!-- Export Button -->
+                    <button class="btn" onclick="exportLibrary()">Export JSON</button>
+                    
+                    <!-- Import Button -->
+                    <button class="btn" onclick="document.getElementById('importInput').click()">Import JSON</button>
+                </div>
+                <!-- Hidden input to handle the file selection -->
+                <input type="file" id="importInput" style="display:none" accept=".json" onchange="importLibrary(event)">
             </div>
-            <input type="file" id="importInput" style="display:none" accept=".zolryq" onchange="importLibrary(event)">
             
             <button id="saveUserBtn" class="btn" style="width:100%; margin-top: 15px;" onclick="saveUser()">Save Changes</button>
         </div>
