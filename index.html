@@ -58,7 +58,23 @@
         }
         
         /* Adjust body padding so content doesn't hide under the sticky header */
-        body { padding-top: 130px; } 
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            /* Changed to Courier New for typewriter feel */
+            font-family: "Courier New", Courier, monospace; 
+            padding: 15px; 
+            margin: 0; 
+            padding-bottom: 120px; 
+            padding-top: 130px; 
+            text-shadow: 0 0 1px rgba(255,255,255,0.1);
+        } 
+
+        /* Makes titles look like bold typewriter headers */
+        h1, h2, h4, .section-header {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
         
         /* Sidebar Drawer */
         .side-tab {
@@ -224,7 +240,9 @@
         /* Compact Text */
         .card-title { 
             font-size: 11px; /* Smaller font */
-            font-weight: 600; 
+            font-family: "Courier New", Courier, monospace;
+            font-weight: bold;
+            letter-spacing: -0.5px; /* Tightens text for a "stamped" look */ 
             padding: 2px; 
             white-space: nowrap;
             overflow: hidden;
@@ -290,6 +308,12 @@
 
         /* Space between categories */
         #music-anchor { margin-top: 60px; }
+
+        /* Makes the time display look like a digital/mechanical readout */
+        [id^="cur-"], [id^="total-"] {
+            font-weight: bold;
+            opacity: 0.7;
+        }
 
         /* MEDIUM SCREEN (e.g., iPhone Pro Max or iPad Split-Screen) */
         @media (min-width: 400px) {
