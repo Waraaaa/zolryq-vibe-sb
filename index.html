@@ -104,6 +104,12 @@
                 <br><br>
                 This is a private media player designed for personal use. All sounds are stored locally on your iPad's IndexedDB. 
                 <br><br>
+                <strong>How to use:</strong>
+                <br>
+                1. You prepare your own .mp3 file and upload it here. SFX and Music are no different, it is purely just for categorization.
+                2. It is not recommended using Private Tab (Incognito) for this site, as all your data will be gone the moment you close your tab.
+                3. TBA
+                <br><br>
                 <em>Tip: Add this page to your Home Screen for a full experience.</em>
             </p>
             <button class="btn" style="width:100%" onclick="closeModal('webInfoModal')">Close</button>
@@ -127,7 +133,7 @@
         <button class="add-btn" onclick="openPicker('sfx')">+ Add SFX</button>
     </div>
 
-    <input type="file" id="fileInput" accept=".mp3,audio/*" style="display:none" onchange="processFile(event)">
+    <input type="file" id="fileInput" accept=".mp3,.m4a,.mp4,audio/*,video/mp4" style="display:none" onchange="processFile(event)">
 
     <script src="script.js"></script>
 </body>
