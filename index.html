@@ -110,24 +110,31 @@
     <div id="webInfoModal" class="overlay" onclick="closeModal('webInfoModal')">
         <div class="modal" onclick="event.stopPropagation()">
             <h4>About Da Soundboard</h4>
-            <p style="font-size:12px; color:#aaa; text-align: left; line-height: 1.6;">
-                <strong>Version:</strong> 1.0<br>
-                <strong>Developer:</strong> Zolryq<br><br>
-                <strong>This website is made by vibe-coding using Gemini 3</strong>
-                <br>
-                The Github full code can be viewed here: <a href="https://github.com/Waraaaa/zolryq-vibe-sb">https://github.com/Waraaaa/zolryq-vibe-sb</a>.
-                <br><br>
-                This is a private media player designed for personal use. All sounds are stored locally on your iPad's IndexedDB. 
-                <br><br>
-                <strong>Tips:</strong>
-                <br>
-                1. You prepare your own .mp3 file and upload it here. SFX and Music are no different, it is purely just for categorization.
-                2. It is not recommended using Private Tab (Incognito) for this site, as all your data will be gone the moment you close your tab.
-                3. Other types of audio or video file (e.g., .mp4 or .m4a) are supported, but they are more preferably convert into .mp3 before uploading here since they tends to have larger size.
-                <br><br>
-                <em>Note: Add this page to your Home Screen for a full experience.</em>
-            </p>
-            <button class="btn" style="width:100%" onclick="closeModal('webInfoModal')">Close</button>
+            
+            <!-- This is the new scrollable container -->
+            <div class="modal-scroll-area">
+                <p style="font-size:12px; color:#aaa; text-align: left; line-height: 1.6; margin: 0;">
+                    <strong>Version:</strong> 1.0<br>
+                    <strong>Developer:</strong> Zolryq<br><br>
+                    <strong>This website is made by vibe-coding using Gemini 3</strong>
+                    <br>
+                    The Github full code can be viewed here: <a href="https://github.com/Waraaaa/zolryq-vibe-sb">https://github.com/Waraaaa/zolryq-vibe-sb</a>.
+                    <br><br>
+                    This is a private media player designed for personal use. All sounds are stored locally on your iPad's IndexedDB. 
+                    <br><br>
+                    <strong>Tips:</strong>
+                    <br>
+                    1. You prepare your own .mp3 file and upload it here. SFX and Music are no different, it is purely just for categorization.
+                    <br>
+                    2. It is not recommended using Private Tab (Incognito) for this site, as all your data will be gone the moment you close your tab.
+                    <br>
+                    3. Other types of audio or video file (e.g., .mp4 or .m4a) are supported, but they are more preferably convert into .mp3 before uploading here since they tends to have larger size.
+                    <br><br>
+                    <em>Note: Add this page to your Home Screen for a full experience.</em>
+                </p>
+            </div>
+    
+            <button class="btn" style="width:100%; margin-top: 15px;" onclick="closeModal('webInfoModal')">Close</button>
         </div>
     </div>
 
