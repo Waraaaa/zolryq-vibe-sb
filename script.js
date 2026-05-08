@@ -53,7 +53,7 @@ function processFile(e) {
             type: currentType,
             dateAdded: new Date().toLocaleDateString(), // Add this line
             size: file.size,
-            image: "https://cdn.discordapp.com/attachments/1502314230592966656/1502325673094680686/4ADA4F22-7C87-46EA-A9E3-4F2BEC1088D9.png?ex=69ff4d50&is=69fdfbd0&hm=c29fb8fa442ae70b69350e3be99442a990f4e0a89f91e9f2b38803130d13cb60&"
+            image: "Zo-sb-assets/soundplaceholder.png"
         });
         tx.oncomplete = loadMedia;
     };
