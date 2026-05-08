@@ -209,15 +209,27 @@
             };
             a.onended = () => { 
                 if(loops[item.type]) {
-                    // If "Loop" is turned on for this section, just start over.
+                    // LOOP IS ON: Just restart the audio
                     a.play(); 
                 } else {
-                    // If "Loop" is OFF, run the pPlay function.
-                    // Since the audio has already stopped, pPlay will see that it's 
-                    // "playing" and trigger the "Stop" logic:
-                    // 1. Remove the red glow.
-                    // 2. Move the card below any other active sounds.
-                    pPlay(item.id); 
+                    // LOOP IS OFF: Manual Cleanup
+                    // 1. Reset the button and state
+                    document.getElementById(`play-${item.id}`).innerText = "▶️";
+                    document.getElementById(`card-${item.id}`).dataset.playing = "false";
+                    
+                    // 2. Remove the glow
+                    const card = document.getElementById(`card-${item.id}`);
+                    card.style.border = "1px solid #222";
+                    card.style.boxShadow = "none";
+
+                    // 3. Move it to the "Recently Played" position (behind active cards)
+                    const grid = card.parentElement;
+                    const playingCards = grid.querySelectorAll('.card[data-playing="true"]');
+                    if (playingCards.length > 0) {
+                        playingCards[playingCards.length - 1].after(card);
+                    } else {
+                        grid.prepend(card);
+                    }
                 }
             };
         }
