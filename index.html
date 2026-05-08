@@ -20,6 +20,57 @@
         .loop-btn { font-size: 20px; cursor: pointer; opacity: 0.2; transition: 0.2s; }
         .loop-btn.active { opacity: 1; color: var(--accent); }
 
+        /* Sticky Header logic */
+        .sticky-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--bg);
+            z-index: 1000;
+            padding-top: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        /* Adjust body padding so content doesn't hide under the sticky header */
+        body { padding-top: 130px; } 
+        
+        /* Sidebar Drawer */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px; /* Hidden by default */
+            width: 250px;
+            height: 100%;
+            background: #111;
+            z-index: 2000;
+            transition: 0.3s;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .sidebar.active { left: 0; }
+        
+        .side-item {
+            padding: 15px;
+            background: #222;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+        }
+
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .card { 
             background: var(--card); 
@@ -49,19 +100,35 @@
 </head>
 <body>
 
-    <h1 style="text-align: center; margin: 10px 0 5px 0; color: var(--accent); font-size: 24px;">Da Soundboard</h1>
-    
-    <div class="top-nav">
-        <!-- New Website Info Button on the left -->
-        <div class="user-icon" onclick="openModal('webInfoModal')" style="font-size: 16px;">❓</div>
-        <h3 id="displayUser" style="margin:0; font-size: 14px; color: #888;">Guest</h3>
-        <div class="user-icon" onclick="openModal('userModal')">👤</div>
+    <!-- Sidebar Drawer -->
+    <div id="sideDrawer" class="sidebar">
+        <h2 style="color: var(--accent)">Jump To</h2>
+        <div class="side-item" onclick="scrollToSection('sfx-anchor')">🔊 SFX Section</div>
+        <div class="side-item" onclick="scrollToSection('music-anchor')">🎵 Music Section</div>
+        <button class="btn" style="margin-top: auto" onclick="toggleSidebar()">Close</button>
+    </div>
+    <div id="sideOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sticky Header Wrapper -->
+    <div class="sticky-top">
+        <h1 style="text-align: center; margin: 0 0 5px 0; color: var(--accent); font-size: 24px;">Da Soundboard</h1>
+        
+        <div class="top-nav">
+            <!-- New Menu Button for Sidebar -->
+            <div class="user-icon" onclick="toggleSidebar()">☰</div>
+            
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="user-icon" onclick="openModal('webInfoModal')" style="font-size: 16px;">❓</div>
+                <h3 id="displayUser" style="margin:0; font-size: 14px; color: #888;">Guest</h3>
+                <div class="user-icon" onclick="openModal('userModal')">👤</div>
+            </div>
+        </div>
     </div>
 
-    <div class="section-header"><span>🔊 SFX</span><span id="loopSfx" class="loop-btn" onclick="toggleLoop('sfx')">🔁</span></div>
+    <div id="sfx-anchor" class="section-header"><span>🔊 SFX</span><span id="loopSfx" class="loop-btn" onclick="toggleLoop('sfx')">🔁</span></div>
     <div id="grid-sfx" class="grid"></div>
     
-    <div class="section-header"><span>🎵 MUSIC</span><span id="loopMusic" class="loop-btn" onclick="toggleLoop('music')">🔁</span></div>
+    <div id="sfx-anchor" class="section-header"><span>🎵 MUSIC</span><span id="loopMusic" class="loop-btn" onclick="toggleLoop('music')">🔁</span></div>
     <div id="grid-music" class="grid"></div>
 
     <!-- User Modal -->
