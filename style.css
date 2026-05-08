@@ -343,6 +343,23 @@ input[type=range] { width: 100%; margin: 8px 0; accent-color: var(--accent); }
     border-radius: 8px;
 }
 
+.modal-scroll-area {
+    max-height: 300px; /* Limits the height */
+    overflow-y: auto;  /* Adds the scrollbar when needed */
+    padding-right: 10px; /* Space for the scrollbar */
+    margin-bottom: 10px;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iPad */
+}
+
+/* Optional: Make the scrollbar look "vibe-y" and thin */
+.modal-scroll-area::-webkit-scrollbar {
+    width: 4px;
+}
+.modal-scroll-area::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+}
+
 /* Specific fix for the color picker's internal padding */
 #colorPicker {
     padding: 4px;
