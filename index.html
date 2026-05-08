@@ -75,7 +75,7 @@
                     <button class="btn" onclick="document.getElementById('importInput').click()">Import JSON</button>
                 </div>
                 <!-- Hidden input to handle the file selection -->
-                <input type="file" id="importInput" style="display:none" accept=".json" onchange="importLibrary(event)">
+                <input type="file" id="importInput" style="display:none" accept=".json,.gz" onchange="importLibrary(event)">
             </div>
             
             <button id="saveUserBtn" class="btn" style="width:100%; margin-top: 15px;" onclick="saveUser()">Save Changes</button>
