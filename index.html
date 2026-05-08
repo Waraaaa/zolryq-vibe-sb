@@ -1,34 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iPad Avatar Overlay</title>
+    <title>Clean PNGTuber Overlay</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { background: #222; color: white; font-family: sans-serif; text-align: center; }
-        #avatar-box { width: 300px; height: 300px; margin: 20px auto; border: 2px solid #5865f2; }
-        iframe { width: 100%; height: 100%; border: none; }
-        .setup-input { padding: 10px; width: 80%; border-radius: 5px; }
-        .btn { background: #5865f2; color: white; padding: 15px; border: none; border-radius: 10px; cursor: pointer; }
+        body { background: #1a1a1a; color: white; font-family: sans-serif; text-align: center; }
+        #container { position: relative; width: 300px; height: 300px; margin: auto; overflow: hidden; }
+        img { width: 100%; position: absolute; top: 0; left: 0; display: none; }
+        .active { display: block; }
+        #pipVideo { width: 100%; border-radius: 15px; background: #000; }
+        .btn { padding: 15px; background: #5865F2; color: white; border: none; border-radius: 10px; margin: 10px; }
+        input { padding: 10px; width: 80%; border-radius: 5px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h1>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa</h1>
-    <p>Paste your Fugi Link here:</p>
-    <input type="text" id="fugiLink" class="setup-input" placeholder="https://reactive.fugi.tech/u/...">
-    <br><br>
-    <button class="btn" onclick="loadAvatar()">Load Avatar</button>
+    <h3>Voice-Connected Avatar</h3>
+    
+    <!-- This video streams the character for PiP mode -->
+    <video id="pipVideo" autoplay playsinline muted></video>
 
-    <div id="avatar-box">
-        <iframe id="avatarFrame" src=""></iframe>
+    <div style="padding: 20px;">
+        <input type="text" id="fugiID" placeholder="Enter Fugi ID (The numbers at the end of the link)">
+        <br>
+        <button class="btn" onclick="connectDiscord()">Connect & Start</button>
+        <button class="btn" style="background:#222" onclick="startPiP()">Float Window</button>
     </div>
 
-    <p style="font-size: 0.8em;">Open this in <b>Slide Over</b> so it floats over your game screen</p>
+    <canvas id="canvas" width="500" height="500" style="display:none;"></canvas>
 
     <script>
-        function loadAvatar() {
-            const link = document.getElementById('fugiLink').value;
-            document.getElementById('avatarFrame').src = link;
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const video = document.getElementById('pipVideo');
+        
+        let isTalking = false;
+        const idleImg = new Image();
+        const talkImg = new Image();
+        
+        // PASTE YOUR DISCORD IMAGE LINKS HERE
+        idleImg.src = 'IDLE_LINK';
+        talkImg.src = 'TALK_LINK';
+
+        function connectDiscord() {
+            const id = document.getElementById('fugiID').value;
+            if(!id) return alert("Please enter the ID");
+
+            // Connect to Fugi's data stream (The "Login" connection)
+            const socket = new WebSocket(`wss://reactive.fugi.tech/ws/${id}`);
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                // 1 means talking, 0 means silent
+                isTalking = data.speaking; 
+            };
+
+            startStreaming();
+        }
+
+        function startStreaming() {
+            const stream = canvas.captureStream();
+            video.srcObject = stream;
+            
+            function draw() {
+                ctx.clearRect(0, 0, 500, 500);
+                const img = isTalking ? talkImg : idleImg;
+                ctx.filter = isTalking ? 'brightness(1.1)' : 'brightness(0.7)';
+                ctx.drawImage(img, 0, isTalking ? -10 : 0, 500, 500);
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+
+        function startPiP() {
+            video.requestPictureInPicture();
         }
     </script>
 </body>
