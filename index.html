@@ -134,7 +134,32 @@
             border: 1px solid #222;
             display: flex;
             flex-direction: column;
+            position: relative /* Card Container - Relative for absolute positioning of loop btn */
             min-width: 0; /* Prevents card from pushing past screen limits */
+        }
+
+        /* Sphere Loop Button on Card */
+        .card-loop-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 26px;
+            height: 26px;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 10;
+            transition: 0.2s;
+        }
+        .card-loop-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
         }
 
         .thumb { 
@@ -181,6 +206,9 @@
             z-index: 1000;
         }
         .add-btn { flex: 1; background: #222; color: white; border: 1px solid #444; padding: 15px; border-radius: 12px; font-weight: bold; }
+
+        /* Space between categories */
+        #music-anchor { margin-top: 60px; }
 
         /* MEDIUM SCREEN (e.g., iPhone Pro Max or iPad Split-Screen) */
         @media (min-width: 400px) {
@@ -371,11 +399,17 @@
             const div = document.createElement('div');
             div.className = 'card';
             div.id = `card-${item.id}`;
+            // Set initial state for sorting logic
+            div.dataset.playing = "false"; 
+            div.dataset.type = item.type; 
+
             div.innerHTML = `
+                <div class="card-loop-btn ${item.isLooping ? 'active' : ''}" 
+                     id="loop-btn-${item.id}" 
+                     onclick="toggleIndividualLoop(${item.id})">🔁</div>
                 <img class="thumb" src="${item.image}" onclick="setImg(${item.id})">
                 <span class="card-title" contenteditable="true" onblur="updateName(${item.id}, this)">${item.displayName}</span>
                 <input type="range" id="range-${item.id}" value="0" step="0.1" oninput="doSeek(${item.id})">
-                <!-- ADDED TIME DISPLAY HERE -->
                 <div style="display: flex; justify-content: space-between; font-size: 10px; color: #888; font-family: monospace; margin-bottom: 5px;">
                     <span id="cur-${item.id}">0:00</span>
                     <span id="total-${item.id}">0:00</span>
@@ -388,43 +422,38 @@
                 <audio id="aud-${item.id}" src="${item.data}"></audio>
             `;
             document.getElementById(`grid-${item.type}`).appendChild(div);
-            const a = document.getElementById(`aud-${item.id}`);
             
-            // UPDATED METADATA TO SHOW TOTAL DURATION
+            const a = document.getElementById(`aud-${item.id}`);
             a.onloadedmetadata = () => { 
                 document.getElementById(`range-${item.id}`).max = a.duration; 
                 document.getElementById(`total-${item.id}`).innerText = fmtTime(a.duration);
             };
-            
-            // UPDATED TIMEUPDATE TO SHOW CURRENT TIME
             a.ontimeupdate = () => { 
                 if(!document.getElementById(`range-${item.id}`).matches(':active')) {
                     document.getElementById(`range-${item.id}`).value = a.currentTime;
                 }
                 document.getElementById(`cur-${item.id}`).innerText = fmtTime(a.currentTime);
             };
-            a.onended = () => { 
-                if(loops[item.type]) {
-                    // LOOP IS ON: Just restart the audio
-                    a.play(); 
+            
+            // Cleaned up onended logic
+            a.onended = () => {
+                // Fetch the latest loop status from the button class
+                const isLooping = document.getElementById(`loop-btn-${item.id}`).classList.contains('active');
+                if(isLooping) {
+                    a.play();
                 } else {
-                    // LOOP IS OFF: Manual Cleanup
-                    // 1. Reset the button and state
+                    // Manual Cleanup to move card down
                     document.getElementById(`play-${item.id}`).innerText = "▶️";
-                    document.getElementById(`card-${item.id}`).dataset.playing = "false";
-                    
-                    // 2. Remove the glow
-                    const card = document.getElementById(`card-${item.id}`);
-                    card.style.border = "1px solid #222";
-                    card.style.boxShadow = "none";
+                    div.dataset.playing = "false";
+                    div.style.border = "1px solid #222";
+                    div.style.boxShadow = "none";
 
-                    // 3. Move it to the "Recently Played" position (behind active cards)
-                    const grid = card.parentElement;
+                    const grid = div.parentElement;
                     const playingCards = grid.querySelectorAll('.card[data-playing="true"]');
                     if (playingCards.length > 0) {
-                        playingCards[playingCards.length - 1].after(card);
+                        playingCards[playingCards.length - 1].after(div);
                     } else {
-                        grid.prepend(card);
+                        grid.prepend(div);
                     }
                 }
             };
@@ -452,15 +481,37 @@
             };
         }
 
+        function toggleIndividualLoop(id) {
+            const btn = document.getElementById(`loop-btn-${id}`);
+            const tx = db.transaction("media", "readwrite");
+            const store = tx.objectStore("media");
+            
+            store.get(id).onsuccess = e => {
+                const data = e.target.result;
+                data.isLooping = !data.isLooping; // Toggle
+                store.put(data);
+                btn.classList.toggle('active', data.isLooping);
+            };
+        }
+
+        // Updated Delete Function to check for empty state immediately
         function delItem(id) { 
             if(confirm("Delete this sound?")) { 
                 const aud = document.getElementById(`aud-${id}`);
+                const card = document.getElementById(`card-${id}`);
+                const type = card.dataset.type; // Get type before removing
+                
                 if(aud) { aud.pause(); aud.src = ""; aud.load(); } 
                 
                 const tx = db.transaction("media", "readwrite");
                 tx.objectStore("media").delete(id);
                 tx.oncomplete = () => {
-                    document.getElementById(`card-${id}`).remove();
+                    card.remove();
+                    // Check if the grid is now empty
+                    const grid = document.getElementById(`grid-${type}`);
+                    if (grid.children.length === 0) {
+                        grid.innerHTML = '<div class="empty-text">There\'s no upload in this category yet.</div>';
+                    }
                 };
             } 
         }
