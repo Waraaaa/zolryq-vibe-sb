@@ -311,12 +311,14 @@
         </div>
     </div>
 
-    <!-- Info Modal -->
+    <!-- Updated Info Modal -->
     <div id="infoModal" class="overlay" onclick="closeModal('infoModal')">
         <div class="modal" onclick="event.stopPropagation()">
             <h4>File Details</h4>
-            <p id="infoContent" style="font-size:12px; color:#aaa; word-break:break-all"></p>
-            <button class="btn" style="width:100%" onclick="closeModal('infoModal')">Close</button>
+            <div id="infoContent" style="text-align: left; font-size: 13px; color: #ccc; line-height: 1.8;">
+                <!-- Data will be injected here -->
+            </div>
+            <button class="btn" style="width:100%; margin-top: 15px;" onclick="closeModal('infoModal')">Close</button>
         </div>
     </div>
 
@@ -395,6 +397,7 @@
                     displayName: file.name.split('.')[0],
                     data: ev.target.result,
                     type: currentType,
+                    dateAdded: new Date().toLocaleDateString(), // Add this line
                     image: "https://via.placeholder.com/150/222/555?text=Media"
                 });
                 tx.oncomplete = loadMedia;
@@ -565,7 +568,24 @@
 
         function showInfo(id) {
             db.transaction("media").objectStore("media").get(id).onsuccess = e => {
-                document.getElementById('infoContent').innerText = "Source File: " + e.target.result.originalName;
+                const item = e.target.result;
+                const aud = document.getElementById(`aud-${id}`);
+                
+                // Format the duration nicely
+                const duration = fmtTime(aud.duration);
+                
+                // Check if image is the default placeholder
+                const isDefaultImg = item.image.includes('placeholder.com');
+                const imgSource = isDefaultImg ? "N/A (Default)" : "User Uploaded";
+        
+                document.getElementById('infoContent').innerHTML = `
+                    <p><strong>🏷️ Name:</strong> ${item.displayName}</p>
+                    <p><strong>📁 Original:</strong> ${item.originalName}</p>
+                    <p><strong>⏱️ Duration:</strong> ${duration}</p>
+                    <p><strong>📅 Uploaded:</strong> ${item.dateAdded || 'Unknown'}</p>
+                    <p><strong>🖼️ Cover Art:</strong> ${imgSource}</p>
+                    <p><strong>🆔 Internal ID:</strong> #${item.id}</p>
+                `;
                 openModal('infoModal');
             };
         }
