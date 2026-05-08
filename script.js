@@ -48,7 +48,7 @@ function processFile(e) {
         const tx = db.transaction("media", "readwrite");
         tx.objectStore("media").add({
             originalName: file.name,
-            displayName: file.name.split('.')[0],
+            displayName: file.name.split('.')[0], // Removes .mp4 or .m4a from the name
             data: ev.target.result,
             type: currentType,
             dateAdded: new Date().toLocaleDateString(), // Add this line
