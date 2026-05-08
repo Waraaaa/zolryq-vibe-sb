@@ -1,79 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Clean PNGTuber Overlay</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body { background: #1a1a1a; color: white; font-family: sans-serif; text-align: center; }
-        #container { position: relative; width: 300px; height: 300px; margin: auto; overflow: hidden; }
-        img { width: 100%; position: absolute; top: 0; left: 0; display: none; }
-        .active { display: block; }
-        #pipVideo { width: 100%; border-radius: 15px; background: #000; }
-        .btn { padding: 15px; background: #5865F2; color: white; border: none; border-radius: 10px; margin: 10px; }
-        input { padding: 10px; width: 80%; border-radius: 5px; margin-bottom: 10px; }
-    </style>
-</head>
-<body>
-    <h3>Voice-Connected Avatar</h3>
+let socket;
+
+function connectDiscord() {
+    const id = document.getElementById('fugiID').value;
+    if(!id) return alert("Please paste the numbers from your Fugi link!");
+
+    // This connects to the live voice data stream
+    socket = new WebSocket(`wss://api.fugi.tech/ws/${id}`);
+
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        // data.speaking will be 'true' when they talk, 'false' when silent
+        isTalking = data.speaking; 
+    };
     
-    <!-- This video streams the character for PiP mode -->
-    <video id="pipVideo" autoplay playsinline muted></video>
+    socket.onopen = () => console.log("Connected to Discord Voice!");
+    socket.onclose = () => console.log("Connection lost. Try reconnecting.");
 
-    <div style="padding: 20px;">
-        <input type="text" id="fugiID" placeholder="Enter Fugi ID (The numbers at the end of the link)">
-        <br>
-        <button class="btn" onclick="connectDiscord()">Connect & Start</button>
-        <button class="btn" style="background:#222" onclick="startPiP()">Float Window</button>
-    </div>
-
-    <canvas id="canvas" width="500" height="500" style="display:none;"></canvas>
-
-    <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const video = document.getElementById('pipVideo');
-        
-        let isTalking = false;
-        const idleImg = new Image();
-        const talkImg = new Image();
-        
-        // PASTE YOUR DISCORD IMAGE LINKS HERE
-        idleImg.src = 'IDLE_LINK';
-        talkImg.src = 'TALK_LINK';
-
-        function connectDiscord() {
-            const id = document.getElementById('fugiID').value;
-            if(!id) return alert("Please enter the ID");
-
-            // Connect to Fugi's data stream (The "Login" connection)
-            const socket = new WebSocket(`wss://reactive.fugi.tech/ws/${id}`);
-
-            socket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                // 1 means talking, 0 means silent
-                isTalking = data.speaking; 
-            };
-
-            startStreaming();
-        }
-
-        function startStreaming() {
-            const stream = canvas.captureStream();
-            video.srcObject = stream;
-            
-            function draw() {
-                ctx.clearRect(0, 0, 500, 500);
-                const img = isTalking ? talkImg : idleImg;
-                ctx.filter = isTalking ? 'brightness(1.1)' : 'brightness(0.7)';
-                ctx.drawImage(img, 0, isTalking ? -10 : 0, 500, 500);
-                requestAnimationFrame(draw);
-            }
-            draw();
-        }
-
-        function startPiP() {
-            video.requestPictureInPicture();
-        }
-    </script>
-</body>
-</html>
+    startStreaming(); // This starts the character drawing
+}
