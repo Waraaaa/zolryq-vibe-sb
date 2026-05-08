@@ -1,11 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Zolryq Sound Media Player</title>
+    <title>Zolryq Sound Media Player - Da Soundboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <style>
         :root { --bg: #0a0a0a; --card: #161616; --accent: #ff3e3e; --text: #e0e0e0; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; padding: 15px; margin: 0; padding-bottom: 120px; }
+
+        /* This forces the typewriter font on every single element */
+        * {
+            font-family: "Courier New", Courier, monospace !important;
+        }
+
+        /* Fix for buttons and inputs specifically */
+        button, input, select, textarea, .card-title, .btn, .add-btn, .side-item {
+            font-family: "Courier New", Courier, monospace !important;
+        }
+        
+        /* Optional: Make the warning pulse slightly to catch the eye */
+        #contrastWarning {
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+        
+        /* Adjust body padding so content doesn't hide under the sticky header */
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            /* Changed to Courier New for typewriter feel */
+            font-family: "Courier New", Courier, monospace; 
+            padding: 15px; 
+            margin: 0; 
+            padding-bottom: 120px; 
+            padding-top: 130px; 
+            text-shadow: 0 0 1px rgba(255,255,255,0.1);
+        } 
         
         .top-nav { 
             display: flex; 
@@ -56,19 +87,6 @@
             padding-top: 10px;
             border-bottom: 1px solid #333;
         }
-        
-        /* Adjust body padding so content doesn't hide under the sticky header */
-        body { 
-            background: var(--bg); 
-            color: var(--text); 
-            /* Changed to Courier New for typewriter feel */
-            font-family: "Courier New", Courier, monospace; 
-            padding: 15px; 
-            margin: 0; 
-            padding-bottom: 120px; 
-            padding-top: 130px; 
-            text-shadow: 0 0 1px rgba(255,255,255,0.1);
-        } 
 
         /* Makes titles look like bold typewriter headers */
         h1, h2, h4, .section-header {
@@ -387,9 +405,14 @@
             <input type="text" id="userInput" placeholder="Enter Name...">
             
             <label style="font-size: 12px; color: #888; display: block; margin-top: 10px;">Theme Accent Color</label>
-            <input type="color" id="colorPicker" style="height: 40px; padding: 2px; cursor: pointer;">
+            <input type="color" id="colorPicker" style="height: 40px; padding: 2px; cursor: pointer;" oninput="checkContrast(this.value)">
+
+            <!-- Add this warning div -->
+            <div id="contrastWarning" style="display:none; color: #ffeb3b; font-size: 10px; margin-top: 5px; line-height: 1.2;">
+                ⚠ This color might be too light to read! Try a darker shade.
+            </div>
             
-            <button class="btn" style="width:100%; margin-top: 15px;" onclick="saveUser()">Save Changes</button>
+            <button id="saveUserBtn" class="btn" style="width:100%; margin-top: 15px;" onclick="saveUser()">Save Changes</button>
         </div>
     </div>
 
@@ -713,12 +736,12 @@
                             <div style="color: white; font-size: 16px;">${item.displayName}</div>
                         </div>
                         <hr style="border: 0; border-top: 1px solid #333; margin: 5px 0;">
-                        <p style="margin: 2px 0;"><strong>📁 Original:</strong> ${item.originalName}</p>
-                        <p style="margin: 2px 0;"><strong>⏱️ Duration:</strong> ${duration}</p>
-                        <p style="margin: 2px 0;"><strong>⚖️ Size:</strong> ${formatBytes(item.size)}</p>
-                        <p style="margin: 2px 0;"><strong>📅 Uploaded:</strong> ${item.dateAdded || 'Earlier Today'}</p>
-                        <p style="margin: 2px 0;"><strong>🆔 Internal ID:</strong> #${item.id}</p>
-                        <p style="margin: 2px 0;"><strong>🏷️ Category:</strong> ${item.type.toUpperCase()}</p>
+                        <p style="margin: 2px 0;"><strong>> Original:</strong> ${item.originalName}</p>
+                        <p style="margin: 2px 0;"><strong>> Duration:</strong> ${duration}</p>
+                        <p style="margin: 2px 0;"><strong>> Size:</strong> ${formatBytes(item.size)}</p>
+                        <p style="margin: 2px 0;"><strong>> Uploaded:</strong> ${item.dateAdded || 'Earlier Today'}</p>
+                        <p style="margin: 2px 0;"><strong>> Internal ID:</strong> #${item.id}</p>
+                        <p style="margin: 2px 0;"><strong>> Category:</strong> ${item.type.toUpperCase()}</p>
                     </div>
                 `;
                 openModal('infoModal');
@@ -823,6 +846,32 @@
                 behavior: 'smooth'
             });
             toggleSidebar(); // Close sidebar after clicking
+        }
+
+        function checkContrast(hex) {
+            const warning = document.getElementById('contrastWarning');
+            const saveBtn = document.getElementById('saveUserBtn');
+            
+            // Convert hex to RGB
+            const r = parseInt(hex.substr(1, 2), 16);
+            const g = parseInt(hex.substr(3, 2), 16);
+            const b = parseInt(hex.substr(5, 2), 16);
+            
+            // YIQ equation (Standard formula for brightness)
+            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            
+            // If brightness is over 180 (out of 255), it's too light
+            if (yiq > 180) {
+                warning.style.display = 'block';
+                saveBtn.style.opacity = '0.5';
+                saveBtn.innerText = 'Color Too Bright';
+                saveBtn.disabled = true;
+            } else {
+                warning.style.display = 'none';
+                saveBtn.style.opacity = '1';
+                saveBtn.innerText = 'Save Changes';
+                saveBtn.disabled = false;
+            }
         }
         
     </script>
