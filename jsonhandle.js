@@ -1,52 +1,61 @@
 // EXPORT: Creates a .json file for Discord sharing
-function exportLibrary() {
+async function exportLibrary() {
     const tx = db.transaction("media", "readonly");
     const store = tx.objectStore("media");
     const request = store.getAll();
 
-    request.onsuccess = () => {
-        // Convert the database array to a JSON string
-        const data = JSON.stringify(request.result, null, 2); 
-        const blob = new Blob([data], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
+    request.onsuccess = async () => {
+        const username = localStorage.getItem('zolryq_user') || 'Guest';
+        const safeUsername = username.replace(/[^a-z0-9]/gi, '_');
+
+        const data = JSON.stringify(request.result);
         
+        // --- COMPRESSION START ---
+        const blob = new Blob([data], { type: "application/json" });
+        const compressedStream = blob.stream().pipeThrough(new CompressionStream("gzip"));
+        const compressedResponse = new Response(compressedStream);
+        const compressedBlob = await compressedResponse.blob();
+        // --- COMPRESSION END ---
+
+        const url = URL.createObjectURL(compressedBlob);
         const a = document.createElement('a');
         a.href = url;
-        // Naming it .json so Discord recognizes it as a text/data file
-        a.download = `Zolryq_Soundboard_Backup.json`;
+        // We name it .json.gz so it's clear it's a compressed JSON
+        a.download = `Zolryq_SB_${safeUsername}_backup.json.gz`;
         a.click();
         URL.revokeObjectURL(url);
     };
 }
 
 // IMPORT: Reads a shared .json file and saves it to iPad
-function importLibrary(e) {
+async function importLibrary(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-        try {
-            const importedData = JSON.parse(ev.target.result);
-            const tx = db.transaction("media", "readwrite");
-            const store = tx.objectStore("media");
+    try {
+        // --- DECOMPRESSION START ---
+        const ds = file.stream().pipeThrough(new DecompressionStream("gzip"));
+        const response = new Response(ds);
+        const blob = await response.blob();
+        const jsonText = await blob.text();
+        // --- DECOMPRESSION END ---
 
-            importedData.forEach(item => {
-                // We delete the old 'id' so the new iPad 
-                // generates its own unique ID for the sound
-                delete item.id; 
-                store.add(item);
-            });
+        const importedData = JSON.parse(jsonText);
+        const tx = db.transaction("media", "readwrite");
+        const store = tx.objectStore("media");
 
-            tx.oncomplete = () => {
-                alert("Library Imported! Your new sounds are ready.");
-                loadMedia(); // Refresh the grid
-                closeModal('userModal');
-            };
-        } catch (err) {
-            console.error(err);
-            alert("Oops! That file doesn't look like a valid Zolryq Soundboard JSON.");
-        }
-    };
-    reader.readAsText(file); // Important: Use readAsText for JSON files
+        importedData.forEach(item => {
+            delete item.id;
+            store.add(item);
+        });
+
+        tx.oncomplete = () => {
+            alert("Library Decompressed & Imported!");
+            loadMedia();
+            closeModal('userModal');
+        };
+    } catch (err) {
+        console.error(err);
+        alert("Error: This file might not be compressed correctly or is corrupted.");
+    }
 }
