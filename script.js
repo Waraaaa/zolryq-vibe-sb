@@ -280,7 +280,7 @@ function pPlay(id) {
     if (a.paused) { 
         // START PLAYING
         a.play(); 
-        b.innerHTML = `<img src="Zo-sb-assets/play.png" class="icon">`;
+        b.innerHTML = `<img src="Zo-sb-assets/pause.png" class="icon">`;
         card.dataset.playing = "true"; // Mark as playing
         
         // Jump to absolute top
@@ -291,7 +291,7 @@ function pPlay(id) {
     } else { 
         // STOP PLAYING
         a.pause(); 
-        b.innerHTML = `<img src="Zo-sb-assets/pause.png" class="icon">`;
+        b.innerHTML = `<img src="Zo-sb-assets/play.png" class="icon">`;
         card.dataset.playing = "false"; // Mark as stopped
         
         // Find all cards in this grid that are still playing
