@@ -12,13 +12,31 @@
             justify-content: space-between; 
             align-items: center; 
             margin-bottom: 20px; 
-            padding: 0 10px;
+            padding: 0 10px 0 50px; /* 50px padding on the left */
         }
         .user-icon { background: #222; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #444; font-size: 20px; }
 
-        .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; margin: 20px 0 10px; padding-bottom: 8px; font-weight: bold; }
+        .section-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid #333; 
+            margin: 40px 0 15px 0; /* More space above headers */
+            padding: 0 10px 8px 50px; /* 50px padding on the left to clear the Sidebar Tab */ 
+            font-weight: bold; }
         .loop-btn { font-size: 20px; cursor: pointer; opacity: 0.2; transition: 0.2s; }
         .loop-btn.active { opacity: 1; color: var(--accent); }
+
+        /* Styling for the "No uploads" text */
+        .empty-text {
+            grid-column: 1 / -1; /* Stretch across the whole row */
+            text-align: center;
+            color: #555;
+            font-size: 13px;
+            padding: 20px;
+            border: 1px dashed #333;
+            border-radius: 12px;
+        }
 
         /* Sticky Header logic */
         .sticky-top {
@@ -321,11 +339,31 @@
         }
 
         function loadMedia() {
-            document.getElementById('grid-music').innerHTML = '';
-            document.getElementById('grid-sfx').innerHTML = '';
+            const sfxGrid = document.getElementById('grid-sfx');
+            const musicGrid = document.getElementById('grid-music');
+            
+            sfxGrid.innerHTML = '';
+            musicGrid.innerHTML = '';
+
+            let hasSfx = false;
+            let hasMusic = false;
+
             db.transaction("media").objectStore("media").openCursor().onsuccess = e => {
                 const cursor = e.target.result;
-                if(cursor) { renderItem(cursor.value); cursor.continue(); }
+                if(cursor) { 
+                    renderItem(cursor.value); 
+                    if(cursor.value.type === 'sfx') hasSfx = true;
+                    if(cursor.value.type === 'music') hasMusic = true;
+                    cursor.continue(); 
+                } else {
+                    // Check if grids are empty after cursor finishes
+                    if (!hasSfx) {
+                        sfxGrid.innerHTML = '<div class="empty-text">There\'s no upload in this category yet.</div>';
+                    }
+                    if (!hasMusic) {
+                        musicGrid.innerHTML = '<div class="empty-text">There\'s no upload in this category yet.</div>';
+                    }
+                }
             };
         }
 
