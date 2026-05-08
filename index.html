@@ -1,54 +1,145 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Clean PNGTuber Overlay</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fandom Soundboard Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <style>
-        body { background: #1a1a1a; color: white; font-family: sans-serif; text-align: center; }
-        #container { position: relative; width: 300px; height: 300px; margin: auto; overflow: hidden; }
-        img { width: 100%; position: absolute; top: 0; left: 0; display: none; }
-        .active { display: block; }
-        #pipVideo { width: 100%; border-radius: 15px; background: #000; }
-        .btn { padding: 15px; background: #5865F2; color: white; border: none; border-radius: 10px; margin: 10px; }
-        input { padding: 10px; width: 80%; border-radius: 5px; margin-bottom: 10px; }
+        :root { --bg: #0f0f0f; --card: #1a1a1a; --accent: #ff4757; }
+        body { background: var(--bg); color: white; font-family: system-ui; padding: 15px; margin: 0; }
+        .header { display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg); z-index: 10; padding-bottom: 10px; }
+        
+        /* Global Controls */
+        #loopBtn { font-size: 24px; cursor: pointer; opacity: 0.3; transition: 0.3s; }
+        #loopBtn.active { opacity: 1; color: var(--accent); }
+
+        /* Sound Cards */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .card { background: var(--card); border-radius: 12px; padding: 10px; position: relative; }
+        .thumb { width: 100%; height: 80px; object-fit: cover; border-radius: 8px; background: #333; cursor: pointer; }
+        
+        /* Progress Bar */
+        .seek-bar { width: 100%; height: 6px; background: #333; border-radius: 3px; margin: 8px 0; position: relative; overflow: hidden; }
+        .fill { height: 100%; background: var(--accent); width: 0%; }
+        
+        .controls { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+        .add-btn { background: var(--accent); color: white; border: none; padding: 15px; border-radius: 10px; width: 100%; margin-top: 20px; font-weight: bold; }
+        
+        input[type="file"] { display: none; }
     </style>
 </head>
 <body>
-    <h3>Voice-Connected Avatar</h3>
+
+<div class="header">
+    <h3>Soundboard</h3>
+    <span id="loopBtn" onclick="toggleLoop()">🔁</span>
+</div>
+
+<div id="soundGrid" class="grid"></div>
+
+<button class="add-btn" onclick="document.getElementById('fileInput').click()">+ ADD SOUND</button>
+<input type="file" id="fileInput" accept="audio/*" onchange="addSound(event)">
+
+<script>
+let db;
+let isLooping = false;
+const request = indexedDB.open("SoundboardDB", 1);
+
+request.onupgradeneeded = e => {
+    db = e.target.result;
+    db.createObjectStore("sounds", { keyPath: "id", autoIncrement: true });
+};
+
+request.onsuccess = e => {
+    db = e.target.result;
+    loadSounds();
+};
+
+function toggleLoop() {
+    isLooping = !isLooping;
+    document.getElementById('loopBtn').classList.toggle('active', isLooping);
+}
+
+async function addSound(e) {
+    const file = e.target.files[0];
+    if (!file) return;
     
-    <!-- This video streams the character for PiP mode -->
-    <video id="pipVideo" autoplay playsinline muted></video>
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        const transaction = db.transaction("sounds", "readwrite");
+        transaction.objectStore("sounds").add({
+            name: file.name,
+            data: event.target.result,
+            image: "https://via.placeholder.com/150" // Default image
+        });
+        transaction.oncomplete = loadSounds;
+    };
+    reader.readAsDataURL(file);
+}
 
-    <div style="padding: 20px;">
-        <input type="text" id="fugiID" placeholder="Enter Fugi ID (The numbers at the end of the link)">
-        <br>
-        <button class="btn" onclick="connectDiscord()">Connect & Start</button>
-        <button class="btn" style="background:#222" onclick="startPiP()">Float Window</button>
-    </div>
-
-    <canvas id="canvas" width="500" height="500" style="display:none;"></canvas>
-
-    <script>
-        let socket;
-        
-        function connectDiscord() {
-            const id = document.getElementById('fugiID').value;
-            if(!id) return alert("Please paste the numbers from your Fugi link!");
-        
-            // This connects to the live voice data stream
-            socket = new WebSocket(`wss://reactive.fugi.tech/ws/${id}`);
-        
-            socket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                // data.speaking will be 'true' when they talk, 'false' when silent
-                isTalking = data.speaking; 
-            };
-            
-            socket.onopen = () => console.log("Connected to Discord Voice!");
-            socket.onclose = () => console.log("Connection lost. Try reconnecting.");
-        
-            startStreaming(); // This starts the character drawing
+function loadSounds() {
+    const grid = document.getElementById('soundGrid');
+    grid.innerHTML = '';
+    db.transaction("sounds").objectStore("sounds").openCursor().onsuccess = e => {
+        const cursor = e.target.result;
+        if (cursor) {
+            createCard(cursor.value);
+            cursor.continue();
         }
-    </script>
+    };
+}
+
+function createCard(sound) {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `
+        <img class="thumb" src="${sound.image}" onclick="changeImg(${sound.id})">
+        <div style="font-size: 14px; margin-bottom: 5px;">${sound.name}</div>
+        <div class="seek-bar" onclick="seek(event, ${sound.id})">
+            <div id="fill-${sound.id}" class="fill"></div>
+        </div>
+        <div class="controls">
+            <span id="time-${sound.id}">0:00</span>
+            <button onclick="togglePlay(${sound.id})" id="btn-${sound.id}">▶️</button>
+        </div>
+        <audio id="aud-${sound.id}" src="${sound.data}"></audio>
+    `;
+    document.getElementById('soundGrid').appendChild(div);
+    
+    const aud = document.getElementById(`aud-${sound.id}`);
+    aud.ontimeupdate = () => {
+        const pct = (aud.currentTime / aud.duration) * 100;
+        document.getElementById(`fill-${sound.id}`).style.width = pct + "%";
+        document.getElementById(`time-${sound.id}`).innerText = Math.floor(aud.currentTime) + "s";
+    };
+    aud.onended = () => { if(isLooping) aud.play(); };
+}
+
+function togglePlay(id) {
+    const aud = document.getElementById(`aud-${id}`);
+    const btn = document.getElementById(`btn-${id}`);
+    if (aud.paused) { aud.play(); btn.innerText = "⏸️"; }
+    else { aud.pause(); btn.innerText = "▶️"; }
+}
+
+function seek(e, id) {
+    const aud = document.getElementById(`aud-${id}`);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    aud.currentTime = pct * aud.duration;
+}
+
+function changeImg(id) {
+    const newUrl = prompt("Enter Image URL:");
+    if (!newUrl) return;
+    const transaction = db.transaction("sounds", "readwrite");
+    const store = transaction.objectStore("sounds");
+    store.get(id).onsuccess = e => {
+        const data = e.target.result;
+        data.image = newUrl;
+        store.put(data);
+        loadSounds();
+    };
+}
+</script>
 </body>
 </html>
