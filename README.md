@@ -1,2 +1,2 @@
-# zolryq-pngdiscord-vibe
-Funsies, PNG.
+# Soundboard / Media Player
+Funsies.
