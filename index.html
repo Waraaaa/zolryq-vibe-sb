@@ -5,7 +5,7 @@ function connectDiscord() {
     if(!id) return alert("Please paste the numbers from your Fugi link!");
 
     // This connects to the live voice data stream
-    socket = new WebSocket(`wss://api.fugi.tech/ws/${id}`);
+    socket = new WebSocket(`wss://reactive.fugi.tech/ws/${id}`);
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
