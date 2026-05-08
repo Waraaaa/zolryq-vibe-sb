@@ -1,22 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Zolryq Hub Pro</title>
+    <title>Zolryq Hub Ultra</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <style>
         :root { --bg: #0a0a0a; --card: #161616; --accent: #ff3e3e; --text: #e0e0e0; }
         body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; padding: 15px; margin: 0; padding-bottom: 120px; }
         
-        /* Header & User Icon */
         .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .user-icon { background: #222; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #444; font-size: 20px; }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; margin: 20px 0 10px; padding-bottom: 8px; font-weight: bold; }
-        .loop-btn { font-size: 20px; cursor: pointer; opacity: 0.2; }
+        .loop-btn { font-size: 20px; cursor: pointer; opacity: 0.2; transition: 0.2s; }
         .loop-btn.active { opacity: 1; color: var(--accent); }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .card { background: var(--card); border-radius: 12px; padding: 10px; border: 1px solid #222; }
+        .card { background: var(--card); border-radius: 12px; padding: 10px; border: 1px solid #222; transition: transform 0.2s; }
         .thumb { width: 100%; height: 85px; object-fit: cover; border-radius: 8px; background: #222; margin-bottom: 8px; cursor: pointer; }
         
         input[type=range] { width: 100%; margin: 8px 0; accent-color: var(--accent); }
@@ -27,7 +26,6 @@
         .btn { background: #222; border: none; color: white; border-radius: 6px; padding: 8px; flex: 1; cursor: pointer; font-size: 12px; }
         .play-btn { background: var(--accent); flex: 1.5; font-size: 16px; }
 
-        /* Overlay Popups */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal { background: #1a1a1a; padding: 20px; border-radius: 15px; width: 85%; max-width: 320px; border: 1px solid #333; }
         .modal h4 { margin-top: 0; color: var(--accent); }
@@ -54,20 +52,19 @@
     <div id="userModal" class="overlay" onclick="closeModal('userModal')">
         <div class="modal" onclick="event.stopPropagation()">
             <h4>User Settings</h4>
-            <input type="text" id="userInput" placeholder="Edit Username...">
-            <button class="btn" style="width:100%; margin-bottom:10px" onclick="saveUser()">Save Name</button>
+            <input type="text" id="userInput" placeholder="Enter Name...">
+            <button class="btn" style="width:100%; margin-bottom:10px" onclick="saveUser()">Update Profile</button>
             <hr style="border:0; border-top:1px solid #333">
-            <p style="font-size:11px; color:#888">Data Management (JSON)</p>
-            <button class="btn" style="width:100%; margin-bottom:5px; background:#2ecc71" onclick="exportJSON()">📥 Download Backup</button>
-            <button class="btn" style="width:100%; background:#3498db" onclick="document.getElementById('importFile').click()">📤 Upload Backup</button>
+            <p style="font-size:11px; color:#888">JSON Sync (Backup/Transfer)</p>
+            <button class="btn" style="width:100%; margin-bottom:5px; background:#2ecc71" onclick="exportJSON()">📥 Export Data</button>
+            <button class="btn" style="width:100%; background:#3498db" onclick="document.getElementById('importFile').click()">📤 Import Data</button>
             <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
         </div>
     </div>
 
-    <!-- Info Modal -->
     <div id="infoModal" class="overlay" onclick="closeModal('infoModal')">
         <div class="modal" onclick="event.stopPropagation()">
-            <h4>File Info</h4>
+            <h4>File Details</h4>
             <p id="infoContent" style="font-size:12px; color:#aaa; word-break:break-all"></p>
             <button class="btn" style="width:100%" onclick="closeModal('infoModal')">Close</button>
         </div>
@@ -83,14 +80,16 @@
     <script>
         let db, currentType = 'music', loops = { music: false, sfx: false };
 
-        const req = indexedDB.open("ZolryqDB_V3", 1);
+        const req = indexedDB.open("ZolryqDB_Final", 1);
         req.onupgradeneeded = e => {
             e.target.result.createObjectStore("media", { keyPath: "id", autoIncrement: true });
         };
         req.onsuccess = e => { 
             db = e.target.result; 
             loadMedia(); 
-            document.getElementById('displayUser').innerText = localStorage.getItem('zolryq_user') || 'Guest';
+            const savedName = localStorage.getItem('zolryq_user') || 'Guest';
+            document.getElementById('displayUser').innerText = savedName;
+            document.getElementById('userInput').value = savedName;
         };
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -137,6 +136,7 @@
         function renderItem(item) {
             const div = document.createElement('div');
             div.className = 'card';
+            div.id = `card-${item.id}`;
             div.innerHTML = `
                 <img class="thumb" src="${item.image}" onclick="setImg(${item.id})">
                 <span class="card-title" contenteditable="true" onblur="updateName(${item.id}, this)">${item.displayName}</span>
@@ -163,11 +163,23 @@
             };
         }
 
-        function delItem(id) { if(confirm("Delete this?")) { db.transaction("media", "readwrite").objectStore("media").delete(id).oncomplete = loadMedia; } }
+        function delItem(id) { 
+            if(confirm("Permanently delete this sound?")) { 
+                const aud = document.getElementById(`aud-${id}`);
+                if(aud) { aud.pause(); aud.src = ""; aud.load(); } // Hard stop audio
+                
+                const tx = db.transaction("media", "readwrite");
+                tx.objectStore("media").delete(id);
+                tx.oncomplete = () => {
+                    const card = document.getElementById(`card-${id}`);
+                    if(card) card.remove(); // Remove UI element without refresh
+                };
+            } 
+        }
 
         function showInfo(id) {
             db.transaction("media").objectStore("media").get(id).onsuccess = e => {
-                document.getElementById('infoContent').innerText = "Original File: " + e.target.result.originalName;
+                document.getElementById('infoContent').innerText = "Source File: " + e.target.result.originalName;
                 openModal('infoModal');
             };
         }
@@ -184,8 +196,8 @@
             document.getElementById(`loop${type.charAt(0).toUpperCase()+type.slice(1)}`).classList.toggle('active', loops[type]);
         }
 
-        // --- JSON BACKUP SYSTEM ---
         function exportJSON() {
+            const name = localStorage.getItem('zolryq_user') || 'Guest';
             const tx = db.transaction("media", "readonly");
             const store = tx.objectStore("media");
             const allItems = [];
@@ -196,7 +208,8 @@
                     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allItems));
                     const dlAnchor = document.createElement('a');
                     dlAnchor.setAttribute("href", dataStr);
-                    dlAnchor.setAttribute("download", "zolryq_backup.json");
+                    // Dynamic filename based on user input
+                    dlAnchor.setAttribute("download", `${name}_zolryq-media.json`);
                     dlAnchor.click();
                 }
             };
@@ -204,22 +217,29 @@
 
         function importJSON(e) {
             const file = e.target.files[0];
+            if(!file) return;
             const reader = new FileReader();
             reader.onload = ev => {
-                const importedData = JSON.parse(ev.target.result);
-                const tx = db.transaction("media", "readwrite");
-                const store = tx.objectStore("media");
-                importedData.forEach(item => {
-                    delete item.id; // Let the DB generate new IDs
-                    store.add(item);
-                });
-                tx.oncomplete = () => { alert("Import Successful!"); loadMedia(); closeModal('userModal'); };
+                try {
+                    const importedData = JSON.parse(ev.target.result);
+                    const tx = db.transaction("media", "readwrite");
+                    const store = tx.objectStore("media");
+                    importedData.forEach(item => {
+                        delete item.id; 
+                        store.add(item);
+                    });
+                    tx.oncomplete = () => { 
+                        alert("Backup Restored!"); 
+                        loadMedia(); 
+                        closeModal('userModal'); 
+                    };
+                } catch(err) { alert("Error: Invalid JSON file."); }
             };
             reader.readAsText(file);
         }
 
         function setImg(id) {
-            const url = prompt("Image URL:");
+            const url = prompt("Paste Image URL:");
             if(!url) return;
             const tx = db.transaction("media", "readwrite");
             const st = tx.objectStore("media");
