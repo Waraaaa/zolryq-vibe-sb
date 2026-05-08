@@ -306,8 +306,13 @@
     <div id="userModal" class="overlay" onclick="closeModal('userModal')">
         <div class="modal" onclick="event.stopPropagation()">
             <h4>User Settings</h4>
+            <label style="font-size: 12px; color: #888;">Display Name</label>
             <input type="text" id="userInput" placeholder="Enter Name...">
-            <button class="btn" style="width:100%" onclick="saveUser()">Update Name</button>
+            
+            <label style="font-size: 12px; color: #888; display: block; margin-top: 10px;">Theme Accent Color</label>
+            <input type="color" id="colorPicker" style="height: 40px; padding: 2px; cursor: pointer;">
+            
+            <button class="btn" style="width:100%; margin-top: 15px;" onclick="saveUser()">Save Changes</button>
         </div>
     </div>
 
@@ -379,9 +384,16 @@
         req.onsuccess = e => { 
             db = e.target.result; 
             loadMedia(); 
+
+            // Load Name
             const savedName = localStorage.getItem('zolryq_user') || 'Guest';
             document.getElementById('displayUser').innerText = savedName;
             document.getElementById('userInput').value = savedName;
+
+            // Load and Apply Color
+            const savedColor = localStorage.getItem('zolryq_accent') || '#ff3e3e';
+            document.documentElement.style.setProperty('--accent', savedColor);
+            document.getElementById('colorPicker').value = savedColor;
         };
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -389,11 +401,18 @@
 
         function saveUser() {
             const name = document.getElementById('userInput').value;
+            const color = document.getElementById('colorPicker').value;
+            
             if(name) {
                 localStorage.setItem('zolryq_user', name);
                 document.getElementById('displayUser').innerText = name;
-                closeModal('userModal');
             }
+
+            // Save and apply the color
+            localStorage.setItem('zolryq_accent', color);
+            document.documentElement.style.setProperty('--accent', color);
+
+            closeModal('userModal');
         }
 
         function openPicker(type) { currentType = type; document.getElementById('fileInput').click(); }
