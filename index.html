@@ -129,13 +129,13 @@
 <body>
 
     <!-- The Modern Pull-out Tab -->
-    <div id="sideTab" class="side-tab" onclick="toggleSidebar()">MENU ———</div>
+    <div id="sideTab" class="side-tab" onclick="toggleSidebar()">MENU</div>
     
     <!-- Updated Sidebar -->
     <div id="sideDrawer" class="sidebar">
         <h2 style="color: var(--accent); margin-bottom: 30px; letter-spacing: 2px;">NAVIGATION</h2>
-        <div class="side-item" onclick="scrollToSection('sfx-anchor')">🔊 SFX LIBRARY</div>
-        <div class="side-item" onclick="scrollToSection('music-anchor')">🎵 MUSIC PLAYER</div>
+        <div class="side-item" onclick="scrollToSection('sfx-anchor')">🔊 SFX</div>
+        <div class="side-item" onclick="scrollToSection('music-anchor')">🎵 MUSIC</div>
         
         <button class="btn" style="margin-top: auto; width: 100%; padding: 15px;" onclick="toggleSidebar()">CLOSE</button>
     </div>
@@ -192,11 +192,13 @@
         <div class="modal" onclick="event.stopPropagation()">
             <h4>About Da Soundboard</h4>
             <p style="font-size:12px; color:#aaa; text-align: left; line-height: 1.6;">
-                <strong>Version:</strong> 1.0 (Lite)<br>
-                <strong>Developer ID:</strong> zolryq<br><br>
-                This is a private media player designed for fandom use. All sounds are stored locally on your iPad's IndexedDB. 
+                <strong>Version:</strong> 1.0<br>
+                <strong>Developer:</strong> Zolryq<br><br>
+                This website is made by vibe-coding using Gemini 3 and the github full code can be viewed here: <a href="https://github.com/Waraaaa/zolryq-vibe-sb">https://github.com/Waraaaa/zolryq-vibe-sb</a>.
                 <br><br>
-                <em>Tip: Add this page to your Home Screen for a full-app experience.</em>
+                This is a private media player designed for personal use. All sounds are stored locally on your iPad's IndexedDB. 
+                <br><br>
+                <em>Tip: Add this page to your Home Screen for a full experience.</em>
             </p>
             <button class="btn" style="width:100%" onclick="closeModal('webInfoModal')">Close</button>
         </div>
