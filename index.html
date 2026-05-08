@@ -1,184 +1,194 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Fandom Media Hub</title>
+    <title>Zolryq Media Hub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <style>
-        :root { --bg: #0d0d0d; --card: #1a1a1a; --accent: #ff4757; --sec: #2f3542; }
-        body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; padding: 15px; margin: 0; padding-bottom: 100px; }
+        :root { --bg: #0a0a0a; --card: #161616; --accent: #ff3e3e; --text: #e0e0e0; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; padding: 15px; margin: 0; padding-bottom: 120px; }
         
-        .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; margin: 20px 0 10px; padding-bottom: 5px; }
-        .loop-btn { font-size: 20px; cursor: pointer; opacity: 0.3; }
-        .loop-btn.active { opacity: 1; color: var(--accent); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; margin: 25px 0 10px; padding-bottom: 8px; font-weight: bold; letter-spacing: 1px; }
+        .loop-btn { font-size: 20px; cursor: pointer; opacity: 0.2; transition: 0.3s; }
+        .loop-btn.active { opacity: 1; color: var(--accent); text-shadow: 0 0 10px var(--accent); }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .card { background: var(--card); border-radius: 15px; padding: 12px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .thumb { width: 100%; height: 90px; object-fit: cover; border-radius: 10px; background: #222; margin-bottom: 8px; }
+        .card { background: var(--card); border-radius: 12px; padding: 10px; position: relative; border: 1px solid #222; }
+        .thumb { width: 100%; height: 85px; object-fit: cover; border-radius: 8px; background: #222; margin-bottom: 8px; cursor: pointer; }
         
-        /* Draggable Slider */
-        input[type=range] { width: 100%; margin: 8px 0; accent-color: var(--accent); cursor: pointer; }
+        /* Draggable Seek Bar */
+        input[type=range] { width: 100%; margin: 8px 0; accent-color: var(--accent); }
         
-        .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #888; }
-        .card-title { font-size: 13px; font-weight: bold; overflow: hidden; text-wrap: nowrap; text-overflow: ellipsis; }
+        .card-title { font-size: 13px; font-weight: 600; padding: 4px; border-radius: 4px; outline: none; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .card-title:focus { background: #333; border-bottom: 2px solid var(--accent); }
         
-        .btn-row { display: flex; gap: 10px; margin-top: 8px; }
-        .icon-btn { background: var(--sec); border: none; color: white; padding: 8px; border-radius: 8px; flex: 1; font-size: 16px; }
-        .play-btn { background: var(--accent); flex: 2; }
+        .time-row { display: flex; justify-content: space-between; font-size: 10px; color: #777; font-family: monospace; }
+        .controls { display: flex; gap: 8px; margin-top: 10px; }
+        .btn { background: #222; border: none; color: white; border-radius: 8px; padding: 8px; flex: 1; cursor: pointer; font-size: 14px; }
+        .play-btn { background: var(--accent); flex: 1.5; font-size: 18px; }
 
-        .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #111; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #333; }
-        .add-btn { flex: 1; background: var(--sec); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; }
+        /* Overlay Popup */
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal { background: #1a1a1a; padding: 25px; border-radius: 20px; width: 80%; max-width: 300px; text-align: center; border: 1px solid #333; }
+
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: #000; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #222; }
+        .add-btn { flex: 1; background: #222; color: white; border: 1px solid #444; padding: 15px; border-radius: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align:center; color:var(--accent)">Media Hub</h2>
+    <h3 style="text-align: center; margin: 10px 0; color: var(--accent);">ZOLRYQ MEDIA HUB</h3>
 
-    <div class="section-header">
-        <span>🎵 MUSIC</span>
-        <span id="loopMusic" class="loop-btn" onclick="toggleLoop('music')">🔁</span>
-    </div>
+    <div class="section-header"><span>🎵 MUSIC</span><span id="loopMusic" class="loop-btn" onclick="toggleLoop('music')">🔁</span></div>
     <div id="grid-music" class="grid"></div>
 
-    <div class="section-header">
-        <span>🔊 SOUND EFFECTS</span>
-        <span id="loopSfx" class="loop-btn" onclick="toggleLoop('sfx')">🔁</span>
-    </div>
+    <div class="section-header"><span>🔊 SFX</span><span id="loopSfx" class="loop-btn" onclick="toggleLoop('sfx')">🔁</span></div>
     <div id="grid-sfx" class="grid"></div>
 
-    <div class="bottom-bar">
-        <button class="add-btn" onclick="triggerAdd('music')">+ Music</button>
-        <button class="add-btn" onclick="triggerAdd('sfx')">+ SFX</button>
+    <!-- Info Overlay -->
+    <div id="overlay" onclick="this.style.display='none'">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h4 style="margin-top:0">File Information</h4>
+            <p id="infoName" style="word-break: break-all; color: #888; font-size: 14px;"></p>
+            <button class="btn" style="width:100%; margin-top:10px" onclick="document.getElementById('overlay').style.display='none'">Close</button>
+        </div>
     </div>
 
-    <input type="file" id="fileInput" accept="audio/*" style="display:none" onchange="handleFile(event)">
+    <div class="footer">
+        <button class="add-btn" onclick="openPicker('music')">+ Add Music</button>
+        <button class="add-btn" onclick="openPicker('sfx')">+ Add SFX</button>
+    </div>
+
+    <!-- MP3 FIX: Explicitly list extensions -->
+    <input type="file" id="fileInput" accept=".mp3,audio/*,video/*" style="display:none" onchange="processFile(event)">
 
     <script>
-        let db;
-        let currentType = 'music';
-        let loops = { music: false, sfx: false };
+        let db, currentType = 'music', loops = { music: false, sfx: false };
 
-        const req = indexedDB.open("FandomHubDB", 1);
+        // Database Setup
+        const req = indexedDB.open("ZolryqDB", 2);
         req.onupgradeneeded = e => {
-            e.target.result.createObjectStore("media", { keyPath: "id", autoIncrement: true });
+            let d = e.target.result;
+            if(!d.objectStoreNames.contains("media")) d.createObjectStore("media", { keyPath: "id", autoIncrement: true });
         };
-        req.onsuccess = e => { db = e.target.result; loadAll(); };
+        req.onsuccess = e => { db = e.target.result; loadMedia(); };
+
+        function openPicker(type) { currentType = type; document.getElementById('fileInput').click(); }
 
         function toggleLoop(type) {
             loops[type] = !loops[type];
             document.getElementById(`loop${type.charAt(0).toUpperCase()+type.slice(1)}`).classList.toggle('active', loops[type]);
         }
 
-        function triggerAdd(type) {
-            currentType = type;
-            document.getElementById('fileInput').click();
-        }
-
-        function handleFile(e) {
+        function processFile(e) {
             const file = e.target.files[0];
             if(!file) return;
             const reader = new FileReader();
-            reader.onload = event => {
+            reader.onload = ev => {
                 const tx = db.transaction("media", "readwrite");
                 tx.objectStore("media").add({
-                    name: file.name,
-                    alias: file.name.split('.')[0],
-                    data: event.target.result,
+                    originalName: file.name,
+                    displayName: file.name.split('.')[0],
+                    data: ev.target.result,
                     type: currentType,
-                    image: "https://via.placeholder.com/150/222/fff?text=Media"
+                    image: "https://via.placeholder.com/150/222/555?text=Media"
                 });
-                tx.oncomplete = loadAll;
+                tx.oncomplete = loadMedia;
             };
             reader.readAsDataURL(file);
         }
 
-        function loadAll() {
+        function loadMedia() {
             document.getElementById('grid-music').innerHTML = '';
             document.getElementById('grid-sfx').innerHTML = '';
             db.transaction("media").objectStore("media").openCursor().onsuccess = e => {
                 const cursor = e.target.result;
-                if(cursor) { renderCard(cursor.value); cursor.continue(); }
+                if(cursor) { renderItem(cursor.value); cursor.continue(); }
             };
         }
 
-        function formatTime(sec) {
-            if(!sec || isNaN(sec)) return "0:00";
-            const h = Math.floor(sec / 3600);
-            const m = Math.floor((sec % 3600) / 60);
-            const s = Math.floor(sec % 60);
-            const pad = (n) => n.toString().padStart(2, '0');
-            return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
-        }
-
-        function renderCard(item) {
+        function renderItem(item) {
             const div = document.createElement('div');
             div.className = 'card';
             div.innerHTML = `
-                <img class="thumb" src="${item.image}" onclick="updateImg(${item.id})">
-                <div class="card-title" id="title-${item.id}">${item.alias}</div>
-                <input type="range" id="range-${item.id}" value="0" step="0.1" oninput="manualSeek(${item.id})">
-                <div class="info-row">
-                    <span id="cur-${item.id}">0:00</span>
-                    <span id="dur-${item.id}">0:00</span>
-                </div>
-                <div class="btn-row">
-                    <button class="icon-btn" onclick="editInfo(${item.id})">ℹ️</button>
-                    <button class="icon-btn play-btn" id="play-${item.id}" onclick="togglePlay(${item.id})">▶️</button>
+                <img class="thumb" src="${item.image}" onclick="setImg(${item.id})">
+                <span class="card-title" contenteditable="true" onkeydown="checkEnter(event, ${item.id})" id="title-${item.id}">${item.displayName}</span>
+                <input type="range" id="range-${item.id}" value="0" step="0.1" oninput="doSeek(${item.id})">
+                <div class="time-row"><span id="cur-${item.id}">0:00</span><span id="total-${item.id}">0:00</span></div>
+                <div class="controls">
+                    <button class="btn" onclick="showInfo(${item.id})">ℹ️</button>
+                    <button class="btn play-btn" id="play-${item.id}" onclick="pPlay(${item.id})">▶️</button>
+                    <button class="btn" onclick="dlFile(${item.id})">💾</button>
                 </div>
                 <audio id="aud-${item.id}" src="${item.data}"></audio>
             `;
             document.getElementById(`grid-${item.type}`).appendChild(div);
             
-            const aud = document.getElementById(`aud-${item.id}`);
-            aud.onloadedmetadata = () => {
-                document.getElementById(`dur-${item.id}`).innerText = formatTime(aud.duration);
-                document.getElementById(`range-${item.id}`).max = aud.duration;
+            const a = document.getElementById(`aud-${item.id}`);
+            a.onloadedmetadata = () => {
+                document.getElementById(`total-${item.id}`).innerText = fmtTime(a.duration);
+                document.getElementById(`range-${item.id}`).max = a.duration;
             };
-            aud.ontimeupdate = () => {
-                const slider = document.getElementById(`range-${item.id}`);
-                if (!slider.matches(':active')) { // Don't snap while user is dragging
-                    slider.value = aud.currentTime;
-                }
-                document.getElementById(`cur-${item.id}`).innerText = formatTime(aud.currentTime);
+            a.ontimeupdate = () => {
+                const s = document.getElementById(`range-${item.id}`);
+                if(!s.matches(':active')) s.value = a.currentTime;
+                document.getElementById(`cur-${item.id}`).innerText = fmtTime(a.currentTime);
             };
-            aud.onended = () => { if(loops[item.type]) aud.play(); };
+            a.onended = () => { if(loops[item.type]) a.play(); };
         }
 
-        function manualSeek(id) {
-            const aud = document.getElementById(`aud-${id}`);
-            const slider = document.getElementById(`range-${id}`);
-            aud.currentTime = slider.value;
+        function fmtTime(s) {
+            if(!s || isNaN(s)) return "0:00";
+            const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sc = Math.floor(s%60);
+            return h > 0 ? `${h}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}` : `${m}:${String(sc).padStart(2,'0')}`;
         }
 
-        function togglePlay(id) {
-            const aud = document.getElementById(`aud-${id}`);
-            const btn = document.getElementById(`play-${id}`);
-            if(aud.paused) { aud.play(); btn.innerText = "⏸️"; }
-            else { aud.pause(); btn.innerText = "▶️"; }
+        function checkEnter(e, id) {
+            if(e.key === 'Enter') {
+                e.preventDefault();
+                e.target.blur();
+                const tx = db.transaction("media", "readwrite");
+                const store = tx.objectStore("media");
+                store.get(id).onsuccess = ev => {
+                    let d = ev.target.result;
+                    d.displayName = e.target.innerText;
+                    store.put(d);
+                };
+            }
         }
 
-        function editInfo(id) {
-            const tx = db.transaction("media", "readwrite");
-            const store = tx.objectStore("media");
-            store.get(id).onsuccess = e => {
-                const data = e.target.result;
-                const newName = prompt("Rename to:", data.alias);
-                if(newName) {
-                    data.alias = newName;
-                    store.put(data);
-                    loadAll();
-                    alert(`Original filename: ${data.name}`);
-                }
+        function showInfo(id) {
+            db.transaction("media").objectStore("media").get(id).onsuccess = e => {
+                document.getElementById('infoName').innerText = "Source: " + e.target.result.originalName;
+                document.getElementById('overlay').style.display = 'flex';
             };
         }
 
-        function updateImg(id) {
-            const url = prompt("Paste Image URL:");
+        function pPlay(id) {
+            const a = document.getElementById(`aud-${id}`), b = document.getElementById(`play-${id}`);
+            if(a.paused) { a.play(); b.innerText = "⏸️"; } else { a.pause(); b.innerText = "▶️"; }
+        }
+
+        function doSeek(id) {
+            const a = document.getElementById(`aud-${id}`), s = document.getElementById(`range-${id}`);
+            a.currentTime = s.value;
+        }
+
+        function setImg(id) {
+            const url = prompt("Image URL:");
             if(!url) return;
             const tx = db.transaction("media", "readwrite");
-            const store = tx.objectStore("media");
-            store.get(id).onsuccess = e => {
-                const d = e.target.result; d.image = url;
-                store.put(d); loadAll();
+            const st = tx.objectStore("media");
+            st.get(id).onsuccess = e => { let d = e.target.result; d.image = url; st.put(d); loadMedia(); };
+        }
+
+        function dlFile(id) {
+            db.transaction("media").objectStore("media").get(id).onsuccess = e => {
+                const d = e.target.result;
+                const link = document.createElement("a");
+                link.href = d.data;
+                // Unique Folder Hint for your friend: "zolryq_media"
+                link.download = `zolryq_media/${d.displayName}.mp3`;
+                link.click();
             };
         }
     </script>
