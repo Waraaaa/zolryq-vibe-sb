@@ -207,7 +207,19 @@
                 }
                 document.getElementById(`cur-${item.id}`).innerText = fmtTime(a.currentTime);
             };
-            a.onended = () => { if(loops[item.type]) a.play(); };
+            a.onended = () => { 
+                if(loops[item.type]) {
+                    // If "Loop" is turned on for this section, just start over.
+                    a.play(); 
+                } else {
+                    // If "Loop" is OFF, run the pPlay function.
+                    // Since the audio has already stopped, pPlay will see that it's 
+                    // "playing" and trigger the "Stop" logic:
+                    // 1. Remove the red glow.
+                    // 2. Move the card below any other active sounds.
+                    pPlay(item.id); 
+                }
+            };
         }
 
         // ADDED FORMATTING FUNCTION FOR HOURS/MINS/SECS
@@ -258,21 +270,35 @@
             const card = document.getElementById(`card-${id}`);
             const grid = card.parentElement;
 
-            if(a.paused) { 
+            if (a.paused) { 
+                // START PLAYING
                 a.play(); 
                 b.innerText = "⏸️";
+                card.dataset.playing = "true"; // Mark as playing
                 
-                // Move card to the top of its grid
+                // Jump to absolute top
                 grid.prepend(card); 
                 
-                // Add a visual glow to show it's active
                 card.style.border = "1px solid var(--accent)";
                 card.style.boxShadow = "0 0 10px rgba(255, 62, 62, 0.3)";
             } else { 
+                // STOP PLAYING
                 a.pause(); 
                 b.innerText = "▶️";
+                card.dataset.playing = "false"; // Mark as stopped
                 
-                // Remove glow when paused
+                // Find all cards in this grid that are still playing
+                const playingCards = grid.querySelectorAll('.card[data-playing="true"]');
+                
+                if (playingCards.length > 0) {
+                    // Place this card immediately after the last playing card
+                    const lastActive = playingCards[playingCards.length - 1];
+                    lastActive.after(card);
+                } else {
+                    // Nothing else is playing, so just move to top of the grid
+                    grid.prepend(card);
+                }
+                
                 card.style.border = "1px solid #222";
                 card.style.boxShadow = "none";
             }
