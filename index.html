@@ -451,8 +451,8 @@
             <input type="color" id="colorPicker" style="height: 40px; cursor: pointer;" oninput="checkContrast(this.value)">
 
             <!-- Add this warning div -->
-            <div id="contrastWarning" style="display:none; color: #ffeb3b; font-size: 10px; margin-top: 5px; line-height: 1.2;">
-                ⚠ This color might be too light to read ._. Try a darker shade.
+            <div id="contrastWarning" style="display:none; font-size: 10px; margin-top: 5px; line-height: 1.4; font-weight: bold;">
+                <!-- Text injected via JS -->
             </div>
             
             <button id="saveUserBtn" class="btn" style="width:100%; margin-top: 15px;" onclick="saveUser()">Save Changes</button>
@@ -902,20 +902,28 @@
             const g = parseInt(hex.substr(3, 2), 16);
             const b = parseInt(hex.substr(5, 2), 16);
             
-            // YIQ equation (Standard formula for brightness)
+            // YIQ brightness formula
             const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
             
-            // If brightness is over 180 (out of 255), it's too light
-            if (yiq > 180) {
+            // Thresholds
+            const isTooLight = yiq > 200; // Very close to white
+            const isTooDark = yiq < 40;   // Very close to the black background
+            
+            // Reset state
+            saveBtn.disabled = false;
+            saveBtn.style.opacity = '1';
+            saveBtn.innerText = 'Save Changes';
+        
+            if (isTooLight) {
                 warning.style.display = 'block';
-                saveBtn.style.opacity = '0.5';
-                saveBtn.innerText = 'Color Too Bright';
-                saveBtn.disabled = true;
+                warning.style.color = '#ffeb3b'; // Yellow warning
+                warning.innerText = '⚠ This color is very bright. It might be hard to read against light text!';
+            } else if (isTooDark) {
+                warning.style.display = 'block';
+                warning.style.color = '#ff5722'; // Orange/Red warning
+                warning.innerText = '⚠ This color is very dark. It might disappear against the background!';
             } else {
                 warning.style.display = 'none';
-                saveBtn.style.opacity = '1';
-                saveBtn.innerText = 'Save Changes';
-                saveBtn.disabled = false;
             }
         }
         
