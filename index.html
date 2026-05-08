@@ -102,36 +102,29 @@
         /* Responsive Grid Logic */
         .grid { 
             display: grid; 
-            /* This is the magic line: it fills the row with cards at least 100px wide, 
-               but never more than 3 per row because of the 31% max-width logic */
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
-            gap: 10px; 
+            gap: 12px; 
             width: 100%;
-            box-sizing: border-box;
+            /* Default: 1 column (for small phones) */
+            grid-template-columns: 1fr; 
         }
 
+        /* COMPACT CARD STYLING */
         .card { 
             background: var(--card); 
-            border-radius: 10px; 
-            padding: 8px; /* Slimmer padding */
+            border-radius: 12px; 
+            padding: 10px; 
             border: 1px solid #222;
-            transition: border 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
-            /* Ensures cards don't get too massive on giant iPad screens */
-            max-width: 100%; 
+            min-width: 0; /* Prevents card from pushing past screen limits */
         }
 
-        /* Thumbnails scale with the card */
         .thumb { 
             width: 100%; 
-            aspect-ratio: 1 / 1; /* Keeps it square regardless of screen size */
-            height: auto; 
+            aspect-ratio: 1 / 1; 
             object-fit: cover; 
-            border-radius: 6px; 
-            background: #222; 
-            margin-bottom: 6px; 
-            cursor: pointer; 
+            border-radius: 8px; 
+            margin-bottom: 8px; 
         }
 
         input[type=range] { width: 100%; margin: 8px 0; accent-color: var(--accent); }
@@ -171,10 +164,18 @@
         }
         .add-btn { flex: 1; background: #222; color: white; border: 1px solid #444; padding: 15px; border-radius: 12px; font-weight: bold; }
 
-        /* If screen is wide enough for more than 3, cap it at 3 columns */
-        @media (min-width: 600px) {
+        /* MEDIUM SCREEN (e.g., iPhone Pro Max or iPad Split-Screen) */
+        @media (min-width: 400px) {
             .grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: 1fr 1fr; /* Switch to 2 columns */
+            }
+        }
+        
+
+        /* LARGE SCREEN (e.g., iPad Full Screen or Landscape) */
+        @media (min-width: 750px) {
+            .grid {
+                grid-template-columns: 1fr 1fr 1fr; /* Max 3 columns */
             }
         }
         
