@@ -36,32 +36,57 @@
         body { padding-top: 130px; } 
         
         /* Sidebar Drawer */
+        .side-tab {
+            position: fixed;
+            top: 50%; /* Center vertically */
+            left: 0;
+            transform: translateY(-50%);
+            background: var(--accent);
+            color: white;
+            padding: 15px 8px;
+            border-radius: 0 10px 10px 0;
+            cursor: pointer;
+            z-index: 1500;
+            writing-mode: vertical-rl; /* Text runs top to bottom */
+            text-orientation: mixed;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 2px 0 10px rgba(255, 62, 62, 0.4);
+            transition: left 0.3s ease;
+        }
+        
+        /* Hide tab when sidebar is open */
+        .side-tab.hidden { left: -40px; }
+        
+        /* Refined Sidebar */
         .sidebar {
             position: fixed;
             top: 0;
-            left: -250px; /* Hidden by default */
-            width: 250px;
+            left: -280px; /* Completely off-screen */
+            width: 260px;
             height: 100%;
             background: #111;
             z-index: 2000;
-            transition: 0.3s;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+            padding: 30px 20px;
         }
         
-        .sidebar.active { left: 0; }
+        .sidebar.active { transform: translateX(280px); }
         
+        /* Glassmorphism for Section Jumps */
         .side-item {
-            padding: 15px;
-            background: #222;
-            border-radius: 10px;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 15px;
             text-align: center;
-            font-weight: bold;
-            cursor: pointer;
+            transition: 0.2s;
         }
+        
+        .side-item:active { background: var(--accent); transform: scale(0.95); }
         
         .sidebar-overlay {
             display: none;
@@ -100,28 +125,27 @@
 </head>
 <body>
 
-    <!-- Sidebar Drawer -->
+    <!-- The Modern Pull-out Tab -->
+    <div id="sideTab" class="side-tab" onclick="toggleSidebar()">MENU ———</div>
+    
+    <!-- Updated Sidebar -->
     <div id="sideDrawer" class="sidebar">
-        <h2 style="color: var(--accent)">Jump To</h2>
-        <div class="side-item" onclick="scrollToSection('sfx-anchor')">🔊 SFX Section</div>
-        <div class="side-item" onclick="scrollToSection('music-anchor')">🎵 Music Section</div>
-        <button class="btn" style="margin-top: auto" onclick="toggleSidebar()">Close</button>
+        <h2 style="color: var(--accent); margin-bottom: 30px; letter-spacing: 2px;">NAVIGATION</h2>
+        <div class="side-item" onclick="scrollToSection('sfx-anchor')">🔊 SFX LIBRARY</div>
+        <div class="side-item" onclick="scrollToSection('music-anchor')">🎵 MUSIC PLAYER</div>
+        
+        <button class="btn" style="margin-top: auto; width: 100%; padding: 15px;" onclick="toggleSidebar()">CLOSE</button>
     </div>
     <div id="sideOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-    <!-- Sticky Header Wrapper -->
+    
+    <!-- Updated Sticky Header (Removed the ☰ button from here) -->
     <div class="sticky-top">
-        <h1 style="text-align: center; margin: 0 0 5px 0; color: var(--accent); font-size: 24px;">Da Soundboard</h1>
-        
+        <h1 style="text-align: center; margin: 0 0 5px 0; color: var(--accent); font-size: 24px; letter-spacing: 1px;">Da Soundboard</h1>
         <div class="top-nav">
-            <!-- New Menu Button for Sidebar -->
-            <div class="user-icon" onclick="toggleSidebar()">☰</div>
-            
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="user-icon" onclick="openModal('webInfoModal')" style="font-size: 16px;">❓</div>
-                <h3 id="displayUser" style="margin:0; font-size: 14px; color: #888;">Guest</h3>
-                <div class="user-icon" onclick="openModal('userModal')">👤</div>
-            </div>
+            <!-- Sidebar button is now the floating tab, so we just have info/user here -->
+            <div class="user-icon" onclick="openModal('webInfoModal')" style="font-size: 16px;">❓</div>
+            <h3 id="displayUser" style="margin:0; font-size: 14px; color: #888;">Guest</h3>
+            <div class="user-icon" onclick="openModal('userModal')">👤</div>
         </div>
     </div>
 
@@ -422,8 +446,17 @@
         function toggleSidebar() {
             const side = document.getElementById('sideDrawer');
             const over = document.getElementById('sideOverlay');
+            const tab = document.getElementById('sideTab');
+            
             side.classList.toggle('active');
-            over.style.display = side.classList.contains('active') ? 'block' : 'none';
+            
+            if (side.classList.contains('active')) {
+                over.style.display = 'block';
+                tab.classList.add('hidden');
+            } else {
+                over.style.display = 'none';
+                tab.classList.remove('hidden');
+            }
         }
         
         function scrollToSection(id) {
