@@ -134,32 +134,36 @@
             border: 1px solid #222;
             display: flex;
             flex-direction: column;
-            position: relative /* Card Container - Relative for absolute positioning of loop btn */
+            position: relative; /* Card Container - Relative for absolute positioning of loop btn */
             min-width: 0; /* Prevents card from pushing past screen limits */
         }
 
-        /* Sphere Loop Button on Card */
+        /* The Sphere Loop Button */
         .card-loop-btn {
             position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 26px;
-            height: 26px;
-            background: rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.2);
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             z-index: 10;
-            transition: 0.2s;
+            transition: all 0.2s ease;
+            color: white;
         }
+        /* Active State (Glowing Red) */
         .card-loop-btn.active {
             background: var(--accent);
             border-color: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            color: white;
+            opacity: 1;
         }
 
         .thumb { 
@@ -260,10 +264,10 @@
         </div>
     </div>
 
-    <div id="sfx-anchor" class="section-header"><span>🔊 SFX</span><span id="loopSfx" class="loop-btn" onclick="toggleLoop('sfx')">🔁</span></div>
+    <div id="sfx-anchor" class="section-header"><span>🔊 SFX</span></div>
     <div id="grid-sfx" class="grid"></div>
     
-    <div id="music-anchor" class="section-header"><span>🎵 MUSIC</span><span id="loopMusic" class="loop-btn" onclick="toggleLoop('music')">🔁</span></div>
+    <div id="music-anchor" class="section-header"><span>🎵 MUSIC</span></div>
     <div id="grid-music" class="grid"></div>
 
     <!-- User Modal -->
@@ -399,14 +403,15 @@
             const div = document.createElement('div');
             div.className = 'card';
             div.id = `card-${item.id}`;
-            // Set initial state for sorting logic
             div.dataset.playing = "false"; 
             div.dataset.type = item.type; 
 
             div.innerHTML = `
+                <!-- Sphere Loop Button -->
                 <div class="card-loop-btn ${item.isLooping ? 'active' : ''}" 
                      id="loop-btn-${item.id}" 
                      onclick="toggleIndividualLoop(${item.id})">🔁</div>
+                     
                 <img class="thumb" src="${item.image}" onclick="setImg(${item.id})">
                 <span class="card-title" contenteditable="true" onblur="updateName(${item.id}, this)">${item.displayName}</span>
                 <input type="range" id="range-${item.id}" value="0" step="0.1" oninput="doSeek(${item.id})">
@@ -419,7 +424,7 @@
                     <button class="btn play-btn" id="play-${item.id}" onclick="pPlay(${item.id})">▶️</button>
                     <button class="btn" onclick="delItem(${item.id})">🗑️</button>
                 </div>
-                <audio id="aud-${item.id}" src="${item.data}"></audio>
+                <audio id="aud-${item.id}" src="${item.data}" ${item.isLooping ? 'loop' : ''}></audio>
             `;
             document.getElementById(`grid-${item.type}`).appendChild(div);
             
@@ -483,14 +488,21 @@
 
         function toggleIndividualLoop(id) {
             const btn = document.getElementById(`loop-btn-${id}`);
+            const aud = document.getElementById(`aud-${id}`);
             const tx = db.transaction("media", "readwrite");
             const store = tx.objectStore("media");
             
             store.get(id).onsuccess = e => {
                 const data = e.target.result;
-                data.isLooping = !data.isLooping; // Toggle
+                // Toggle the state
+                data.isLooping = !data.isLooping; 
+                
+                // Save to IndexedDB
                 store.put(data);
+                
+                // Update UI & Audio Engine
                 btn.classList.toggle('active', data.isLooping);
+                aud.loop = data.isLooping;
             };
         }
 
