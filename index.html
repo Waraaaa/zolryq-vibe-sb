@@ -21,7 +21,13 @@
         .loop-btn.active { opacity: 1; color: var(--accent); }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .card { background: var(--card); border-radius: 12px; padding: 10px; border: 1px solid #222; }
+        .card { 
+            background: var(--card); 
+            border-radius: 12px; 
+            padding: 10px; 
+            border: 1px solid #222;
+            transition: border 0.3s ease, box-shadow 0.3s ease; /* Adds a smooth fade to the glow */
+        }
         .thumb { width: 100%; height: 85px; object-fit: cover; border-radius: 8px; background: #222; margin-bottom: 8px; cursor: pointer; }
         
         input[type=range] { width: 100%; margin: 8px 0; accent-color: var(--accent); }
@@ -247,8 +253,29 @@
         }
 
         function pPlay(id) {
-            const a = document.getElementById(`aud-${id}`), b = document.getElementById(`play-${id}`);
-            if(a.paused) { a.play(); b.innerText = "⏸️"; } else { a.pause(); b.innerText = "▶️"; }
+            const a = document.getElementById(`aud-${id}`);
+            const b = document.getElementById(`play-${id}`);
+            const card = document.getElementById(`card-${id}`);
+            const grid = card.parentElement;
+
+            if(a.paused) { 
+                a.play(); 
+                b.innerText = "⏸️";
+                
+                // Move card to the top of its grid
+                grid.prepend(card); 
+                
+                // Add a visual glow to show it's active
+                card.style.border = "1px solid var(--accent)";
+                card.style.boxShadow = "0 0 10px rgba(255, 62, 62, 0.3)";
+            } else { 
+                a.pause(); 
+                b.innerText = "▶️";
+                
+                // Remove glow when paused
+                card.style.border = "1px solid #222";
+                card.style.boxShadow = "none";
+            }
         }
 
         function doSeek(id) { document.getElementById(`aud-${id}`).currentTime = document.getElementById(`range-${id}`).value; }
