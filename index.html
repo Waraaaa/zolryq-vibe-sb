@@ -350,6 +350,18 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="overlay" onclick="closeModal('deleteModal')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h4 style="color: var(--accent);">Confirm Delete</h4>
+            <p id="deleteConfirmText" style="font-size: 13px; color: #ccc; margin-bottom: 20px;">Are you sure you want to delete this sound?</p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" style="background: #333;" onclick="closeModal('deleteModal')">Cancel</button>
+                <button id="confirmDeleteBtn" class="btn" style="background: var(--accent); font-weight: bold;">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <div class="footer">
         <button class="add-btn" onclick="openPicker('music')">+ Add Music</button>
         <button class="add-btn" onclick="openPicker('sfx')">+ Add SFX</button>
@@ -358,7 +370,7 @@
     <input type="file" id="fileInput" accept=".mp3,audio/*" style="display:none" onchange="processFile(event)">
 
     <script>
-        let db, currentType = 'music';
+        let db, currentType = 'music', pendingDeleteId = null, editingId = null; // Track which song is getting a new image
 
         const req = indexedDB.open("ZolryqDB_Lite", 1);
         req.onupgradeneeded = e => {
@@ -545,26 +557,38 @@
             };
         }
 
-        // Updated Delete Function to check for empty state immediately
-        function delItem(id) { 
-            if(confirm("Delete this sound?")) { 
-                const aud = document.getElementById(`aud-${id}`);
-                const card = document.getElementById(`card-${id}`);
-                const type = card.dataset.type; // Get type before removing
+        function delItem(id) {
+            pendingDeleteId = id;
+            db.transaction("media").objectStore("media").get(id).onsuccess = e => {
+                const name = e.target.result.displayName;
+                document.getElementById('deleteConfirmText').innerText = `Permanently delete "${name}"?`;
                 
-                if(aud) { aud.pause(); aud.src = ""; aud.load(); } 
+                // Link the "Delete" button to the actual action
+                document.getElementById('confirmDeleteBtn').onclick = executeDelete;
+                openModal('deleteModal');
+            };
+        }
+
+        function executeDelete() {
+            const id = pendingDeleteId;
+            const card = document.getElementById(`card-${id}`);
+            const aud = document.getElementById(`aud-${id}`);
+            const type = card.dataset.type;
+
+            if(aud) { aud.pause(); aud.src = ""; aud.load(); }
+
+            const tx = db.transaction("media", "readwrite");
+            tx.objectStore("media").delete(id);
+            tx.oncomplete = () => {
+                card.remove();
+                closeModal('deleteModal');
                 
-                const tx = db.transaction("media", "readwrite");
-                tx.objectStore("media").delete(id);
-                tx.oncomplete = () => {
-                    card.remove();
-                    // Check if the grid is now empty
-                    const grid = document.getElementById(`grid-${type}`);
-                    if (grid.children.length === 0) {
-                        grid.innerHTML = '<div class="empty-text">There\'s no upload in this category yet.</div>';
-                    }
-                };
-            } 
+                // Check if grid is now empty
+                const grid = document.getElementById(`grid-${type}`);
+                if (grid.children.length === 0) {
+                    grid.innerHTML = '<div class="empty-text">There\'s no upload in this category yet.</div>';
+                }
+            };
         }
 
         function showInfo(id) {
@@ -644,8 +668,6 @@
         }
 
         function doSeek(id) { document.getElementById(`aud-${id}`).currentTime = document.getElementById(`range-${id}`).value; }
-
-        let editingId = null; // Track which song is getting a new image
 
         function setImg(id) {
             editingId = id;
