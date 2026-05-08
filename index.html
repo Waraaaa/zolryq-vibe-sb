@@ -137,6 +137,11 @@
                 <img class="thumb" src="${item.image}" onclick="setImg(${item.id})">
                 <span class="card-title" contenteditable="true" onblur="updateName(${item.id}, this)">${item.displayName}</span>
                 <input type="range" id="range-${item.id}" value="0" step="0.1" oninput="doSeek(${item.id})">
+                <!-- ADDED TIME DISPLAY HERE -->
+                <div style="display: flex; justify-content: space-between; font-size: 10px; color: #888; font-family: monospace; margin-bottom: 5px;">
+                    <span id="cur-${item.id}">0:00</span>
+                    <span id="total-${item.id}">0:00</span>
+                </div>
                 <div class="controls">
                     <button class="btn" onclick="showInfo(${item.id})">ℹ️</button>
                     <button class="btn play-btn" id="play-${item.id}" onclick="pPlay(${item.id})">▶️</button>
@@ -146,9 +151,35 @@
             `;
             document.getElementById(`grid-${item.type}`).appendChild(div);
             const a = document.getElementById(`aud-${item.id}`);
-            a.onloadedmetadata = () => { document.getElementById(`range-${item.id}`).max = a.duration; };
-            a.ontimeupdate = () => { if(!document.getElementById(`range-${item.id}`).matches(':active')) document.getElementById(`range-${item.id}`).value = a.currentTime; };
+            
+            // UPDATED METADATA TO SHOW TOTAL DURATION
+            a.onloadedmetadata = () => { 
+                document.getElementById(`range-${item.id}`).max = a.duration; 
+                document.getElementById(`total-${item.id}`).innerText = fmtTime(a.duration);
+            };
+            
+            // UPDATED TIMEUPDATE TO SHOW CURRENT TIME
+            a.ontimeupdate = () => { 
+                if(!document.getElementById(`range-${item.id}`).matches(':active')) {
+                    document.getElementById(`range-${item.id}`).value = a.currentTime;
+                }
+                document.getElementById(`cur-${item.id}`).innerText = fmtTime(a.currentTime);
+            };
             a.onended = () => { if(loops[item.type]) a.play(); };
+        }
+
+        // ADDED FORMATTING FUNCTION FOR HOURS/MINS/SECS
+        function fmtTime(s) {
+            if(!s || isNaN(s)) return "0:00";
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sc = Math.floor(s % 60);
+            const pad = (n) => n.toString().padStart(2, '0');
+            
+            if (h > 0) {
+                return `${h}:${pad(m)}:${pad(sc)}`;
+            }
+            return `${m}:${pad(sc)}`;
         }
 
         function updateName(id, el) {
