@@ -1,145 +1,186 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Fandom Soundboard Pro</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Fandom Media Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <style>
-        :root { --bg: #0f0f0f; --card: #1a1a1a; --accent: #ff4757; }
-        body { background: var(--bg); color: white; font-family: system-ui; padding: 15px; margin: 0; }
-        .header { display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg); z-index: 10; padding-bottom: 10px; }
+        :root { --bg: #0d0d0d; --card: #1a1a1a; --accent: #ff4757; --sec: #2f3542; }
+        body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; padding: 15px; margin: 0; padding-bottom: 100px; }
         
-        /* Global Controls */
-        #loopBtn { font-size: 24px; cursor: pointer; opacity: 0.3; transition: 0.3s; }
-        #loopBtn.active { opacity: 1; color: var(--accent); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; margin: 20px 0 10px; padding-bottom: 5px; }
+        .loop-btn { font-size: 20px; cursor: pointer; opacity: 0.3; }
+        .loop-btn.active { opacity: 1; color: var(--accent); }
 
-        /* Sound Cards */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .card { background: var(--card); border-radius: 12px; padding: 10px; position: relative; }
-        .thumb { width: 100%; height: 80px; object-fit: cover; border-radius: 8px; background: #333; cursor: pointer; }
+        .card { background: var(--card); border-radius: 15px; padding: 12px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .thumb { width: 100%; height: 90px; object-fit: cover; border-radius: 10px; background: #222; margin-bottom: 8px; }
         
-        /* Progress Bar */
-        .seek-bar { width: 100%; height: 6px; background: #333; border-radius: 3px; margin: 8px 0; position: relative; overflow: hidden; }
-        .fill { height: 100%; background: var(--accent); width: 0%; }
+        /* Draggable Slider */
+        input[type=range] { width: 100%; margin: 8px 0; accent-color: var(--accent); cursor: pointer; }
         
-        .controls { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
-        .add-btn { background: var(--accent); color: white; border: none; padding: 15px; border-radius: 10px; width: 100%; margin-top: 20px; font-weight: bold; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #888; }
+        .card-title { font-size: 13px; font-weight: bold; overflow: hidden; text-wrap: nowrap; text-overflow: ellipsis; }
         
-        input[type="file"] { display: none; }
+        .btn-row { display: flex; gap: 10px; margin-top: 8px; }
+        .icon-btn { background: var(--sec); border: none; color: white; padding: 8px; border-radius: 8px; flex: 1; font-size: 16px; }
+        .play-btn { background: var(--accent); flex: 2; }
+
+        .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #111; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #333; }
+        .add-btn { flex: 1; background: var(--sec); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h3>Soundboard</h3>
-    <span id="loopBtn" onclick="toggleLoop()">🔁</span>
-</div>
+    <h2 style="text-align:center; color:var(--accent)">Media Hub</h2>
 
-<div id="soundGrid" class="grid"></div>
+    <div class="section-header">
+        <span>🎵 MUSIC</span>
+        <span id="loopMusic" class="loop-btn" onclick="toggleLoop('music')">🔁</span>
+    </div>
+    <div id="grid-music" class="grid"></div>
 
-<button class="add-btn" onclick="document.getElementById('fileInput').click()">+ ADD SOUND</button>
-<input type="file" id="fileInput" accept="audio/*" onchange="addSound(event)">
+    <div class="section-header">
+        <span>🔊 SOUND EFFECTS</span>
+        <span id="loopSfx" class="loop-btn" onclick="toggleLoop('sfx')">🔁</span>
+    </div>
+    <div id="grid-sfx" class="grid"></div>
 
-<script>
-let db;
-let isLooping = false;
-const request = indexedDB.open("SoundboardDB", 1);
+    <div class="bottom-bar">
+        <button class="add-btn" onclick="triggerAdd('music')">+ Music</button>
+        <button class="add-btn" onclick="triggerAdd('sfx')">+ SFX</button>
+    </div>
 
-request.onupgradeneeded = e => {
-    db = e.target.result;
-    db.createObjectStore("sounds", { keyPath: "id", autoIncrement: true });
-};
+    <input type="file" id="fileInput" accept="audio/*" style="display:none" onchange="handleFile(event)">
 
-request.onsuccess = e => {
-    db = e.target.result;
-    loadSounds();
-};
+    <script>
+        let db;
+        let currentType = 'music';
+        let loops = { music: false, sfx: false };
 
-function toggleLoop() {
-    isLooping = !isLooping;
-    document.getElementById('loopBtn').classList.toggle('active', isLooping);
-}
+        const req = indexedDB.open("FandomHubDB", 1);
+        req.onupgradeneeded = e => {
+            e.target.result.createObjectStore("media", { keyPath: "id", autoIncrement: true });
+        };
+        req.onsuccess = e => { db = e.target.result; loadAll(); };
 
-async function addSound(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-        const transaction = db.transaction("sounds", "readwrite");
-        transaction.objectStore("sounds").add({
-            name: file.name,
-            data: event.target.result,
-            image: "https://via.placeholder.com/150" // Default image
-        });
-        transaction.oncomplete = loadSounds;
-    };
-    reader.readAsDataURL(file);
-}
-
-function loadSounds() {
-    const grid = document.getElementById('soundGrid');
-    grid.innerHTML = '';
-    db.transaction("sounds").objectStore("sounds").openCursor().onsuccess = e => {
-        const cursor = e.target.result;
-        if (cursor) {
-            createCard(cursor.value);
-            cursor.continue();
+        function toggleLoop(type) {
+            loops[type] = !loops[type];
+            document.getElementById(`loop${type.charAt(0).toUpperCase()+type.slice(1)}`).classList.toggle('active', loops[type]);
         }
-    };
-}
 
-function createCard(sound) {
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `
-        <img class="thumb" src="${sound.image}" onclick="changeImg(${sound.id})">
-        <div style="font-size: 14px; margin-bottom: 5px;">${sound.name}</div>
-        <div class="seek-bar" onclick="seek(event, ${sound.id})">
-            <div id="fill-${sound.id}" class="fill"></div>
-        </div>
-        <div class="controls">
-            <span id="time-${sound.id}">0:00</span>
-            <button onclick="togglePlay(${sound.id})" id="btn-${sound.id}">▶️</button>
-        </div>
-        <audio id="aud-${sound.id}" src="${sound.data}"></audio>
-    `;
-    document.getElementById('soundGrid').appendChild(div);
-    
-    const aud = document.getElementById(`aud-${sound.id}`);
-    aud.ontimeupdate = () => {
-        const pct = (aud.currentTime / aud.duration) * 100;
-        document.getElementById(`fill-${sound.id}`).style.width = pct + "%";
-        document.getElementById(`time-${sound.id}`).innerText = Math.floor(aud.currentTime) + "s";
-    };
-    aud.onended = () => { if(isLooping) aud.play(); };
-}
+        function triggerAdd(type) {
+            currentType = type;
+            document.getElementById('fileInput').click();
+        }
 
-function togglePlay(id) {
-    const aud = document.getElementById(`aud-${id}`);
-    const btn = document.getElementById(`btn-${id}`);
-    if (aud.paused) { aud.play(); btn.innerText = "⏸️"; }
-    else { aud.pause(); btn.innerText = "▶️"; }
-}
+        function handleFile(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = event => {
+                const tx = db.transaction("media", "readwrite");
+                tx.objectStore("media").add({
+                    name: file.name,
+                    alias: file.name.split('.')[0],
+                    data: event.target.result,
+                    type: currentType,
+                    image: "https://via.placeholder.com/150/222/fff?text=Media"
+                });
+                tx.oncomplete = loadAll;
+            };
+            reader.readAsDataURL(file);
+        }
 
-function seek(e, id) {
-    const aud = document.getElementById(`aud-${id}`);
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pct = (e.clientX - rect.left) / rect.width;
-    aud.currentTime = pct * aud.duration;
-}
+        function loadAll() {
+            document.getElementById('grid-music').innerHTML = '';
+            document.getElementById('grid-sfx').innerHTML = '';
+            db.transaction("media").objectStore("media").openCursor().onsuccess = e => {
+                const cursor = e.target.result;
+                if(cursor) { renderCard(cursor.value); cursor.continue(); }
+            };
+        }
 
-function changeImg(id) {
-    const newUrl = prompt("Enter Image URL:");
-    if (!newUrl) return;
-    const transaction = db.transaction("sounds", "readwrite");
-    const store = transaction.objectStore("sounds");
-    store.get(id).onsuccess = e => {
-        const data = e.target.result;
-        data.image = newUrl;
-        store.put(data);
-        loadSounds();
-    };
-}
-</script>
+        function formatTime(sec) {
+            if(!sec || isNaN(sec)) return "0:00";
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor((sec % 3600) / 60);
+            const s = Math.floor(sec % 60);
+            const pad = (n) => n.toString().padStart(2, '0');
+            return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+        }
+
+        function renderCard(item) {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.innerHTML = `
+                <img class="thumb" src="${item.image}" onclick="updateImg(${item.id})">
+                <div class="card-title" id="title-${item.id}">${item.alias}</div>
+                <input type="range" id="range-${item.id}" value="0" step="0.1" oninput="manualSeek(${item.id})">
+                <div class="info-row">
+                    <span id="cur-${item.id}">0:00</span>
+                    <span id="dur-${item.id}">0:00</span>
+                </div>
+                <div class="btn-row">
+                    <button class="icon-btn" onclick="editInfo(${item.id})">ℹ️</button>
+                    <button class="icon-btn play-btn" id="play-${item.id}" onclick="togglePlay(${item.id})">▶️</button>
+                </div>
+                <audio id="aud-${item.id}" src="${item.data}"></audio>
+            `;
+            document.getElementById(`grid-${item.type}`).appendChild(div);
+            
+            const aud = document.getElementById(`aud-${item.id}`);
+            aud.onloadedmetadata = () => {
+                document.getElementById(`dur-${item.id}`).innerText = formatTime(aud.duration);
+                document.getElementById(`range-${item.id}`).max = aud.duration;
+            };
+            aud.ontimeupdate = () => {
+                const slider = document.getElementById(`range-${item.id}`);
+                if (!slider.matches(':active')) { // Don't snap while user is dragging
+                    slider.value = aud.currentTime;
+                }
+                document.getElementById(`cur-${item.id}`).innerText = formatTime(aud.currentTime);
+            };
+            aud.onended = () => { if(loops[item.type]) aud.play(); };
+        }
+
+        function manualSeek(id) {
+            const aud = document.getElementById(`aud-${id}`);
+            const slider = document.getElementById(`range-${id}`);
+            aud.currentTime = slider.value;
+        }
+
+        function togglePlay(id) {
+            const aud = document.getElementById(`aud-${id}`);
+            const btn = document.getElementById(`play-${id}`);
+            if(aud.paused) { aud.play(); btn.innerText = "⏸️"; }
+            else { aud.pause(); btn.innerText = "▶️"; }
+        }
+
+        function editInfo(id) {
+            const tx = db.transaction("media", "readwrite");
+            const store = tx.objectStore("media");
+            store.get(id).onsuccess = e => {
+                const data = e.target.result;
+                const newName = prompt("Rename to:", data.alias);
+                if(newName) {
+                    data.alias = newName;
+                    store.put(data);
+                    loadAll();
+                    alert(`Original filename: ${data.name}`);
+                }
+            };
+        }
+
+        function updateImg(id) {
+            const url = prompt("Paste Image URL:");
+            if(!url) return;
+            const tx = db.transaction("media", "readwrite");
+            const store = tx.objectStore("media");
+            store.get(id).onsuccess = e => {
+                const d = e.target.result; d.image = url;
+                store.put(d); loadAll();
+            };
+        }
+    </script>
 </body>
 </html>
