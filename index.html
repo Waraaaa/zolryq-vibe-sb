@@ -70,8 +70,9 @@
             font-size: 12px;
             font-weight: bold;
             letter-spacing: 1px;
-            box-shadow: 2px 0 10px rgba(255, 62, 62, 0.4);
-            transition: left 0.3s ease;
+            box-shadow: 2px 0 10px var(--accent); /* Now uses your custom color */
+            opacity: 0.9; /* Optional: makes the glow a bit softer */
+            transition: all 0.3s ease;
         }
         
         /* Hide tab when sidebar is open */
