@@ -324,7 +324,7 @@
     <input type="file" id="fileInput" accept=".mp3,audio/*" style="display:none" onchange="processFile(event)">
 
     <script>
-        let db, currentType = 'music', loops = { music: false, sfx: false };
+        let db, currentType = 'music';
 
         const req = indexedDB.open("ZolryqDB_Lite", 1);
         req.onupgradeneeded = e => {
@@ -576,11 +576,6 @@
         }
 
         function doSeek(id) { document.getElementById(`aud-${id}`).currentTime = document.getElementById(`range-${id}`).value; }
-
-        function toggleLoop(type) {
-            loops[type] = !loops[type];
-            document.getElementById(`loop${type.charAt(0).toUpperCase()+type.slice(1)}`).classList.toggle('active', loops[type]);
-        }
 
         let editingId = null; // Track which song is getting a new image
 
