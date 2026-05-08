@@ -24,6 +24,16 @@
         @keyframes blink {
             50% { opacity: 0.5; }
         }
+
+        a {
+            color: var(--accent);
+            text-decoration: underline; /* Keeps it looking like a clickable link */
+            transition: opacity 0.2s;
+        }
+        
+        a:active {
+            opacity: 0.6; /* Gives visual feedback when tapped */
+        }
         
         /* Adjust body padding so content doesn't hide under the sticky header */
         body { 
@@ -135,16 +145,28 @@
         
         /* 4. Smooth Slide Action */
         .sidebar.active { transform: translateX(320px); }
+
+        /* Sidebar Icon Styling */
+        .side-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
         
         /* Glassmorphism for Section Jumps */
         .side-item {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centers the whole group */
             padding: 18px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             margin-bottom: 15px;
-            text-align: center;
             transition: 0.2s;
+            cursor: pointer;
         }
         
         .side-item:active { background: var(--accent); transform: scale(0.95); }
@@ -166,12 +188,6 @@
             height: 24px;
             object-fit: contain;
             vertical-align: middle;
-        }
-        
-        /* Specific size for the Play button since it's bigger */
-        .play-btn .icon {
-            width: 30px;
-            height: 30px;
         }
 
         /* User & Info Icons in the Top Nav */
@@ -306,8 +322,30 @@
 
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal { background: #1a1a1a; padding: 20px; border-radius: 15px; width: 85%; max-width: 320px; border: 1px solid #333; }
+        .modal input:focus {
+            border: 1px solid var(--accent);
+            outline: none;
+            box-shadow: 0 0 5px var(--accent);
+        }
         .modal h4 { margin-top: 0; color: var(--accent); }
-        .modal input { width: 90%; padding: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 8px; margin: 10px 0; }
+        /* Force modal inputs to match width and alignment */
+        .modal input {
+            width: 100% !important; /* Spans the full width of the modal */
+            box-sizing: border-box; /* Ensures padding doesn't push the box out */
+            display: block;
+            margin: 10px 0;
+            height: 45px; /* Gives them both a nice, uniform height */
+            background: #000;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 8px;
+        }
+
+        /* Specific fix for the color picker's internal padding */
+        #colorPicker {
+            padding: 4px;
+            cursor: pointer;
+        }
 
         .footer { 
             position: fixed; 
@@ -365,9 +403,14 @@
     <!-- Updated Sidebar -->
     <div id="sideDrawer" class="sidebar">
         <h2 style="color: var(--accent); margin-bottom: 30px; letter-spacing: 2px;">NAVIGATION</h2>
-        <div class="side-item" onclick="scrollToSection('sfx-anchor')">🔊 SFX</div>
-        <div class="side-item" onclick="scrollToSection('music-anchor')">🎵 MUSIC</div>
-        
+        <!-- SFX Item -->
+        <div class="side-item" onclick="scrollToSection('sfx-anchor')">
+            <img src="YOUR_SFX_PNG_LINK" class="side-icon"> SFX
+        </div>
+        <!-- Music Item -->
+        <div class="side-item" onclick="scrollToSection('music-anchor')">
+            <img src="YOUR_MUSIC_PNG_LINK" class="side-icon"> MUSIC
+        </div>
         <button class="btn" style="margin-top: auto; width: 100%; padding: 15px;" onclick="toggleSidebar()">CLOSE</button>
     </div>
     <div id="sideOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
@@ -405,11 +448,11 @@
             <input type="text" id="userInput" placeholder="Enter Name...">
             
             <label style="font-size: 12px; color: #888; display: block; margin-top: 10px;">Theme Accent Color</label>
-            <input type="color" id="colorPicker" style="height: 40px; padding: 2px; cursor: pointer;" oninput="checkContrast(this.value)">
+            <input type="color" id="colorPicker" style="height: 40px; cursor: pointer;" oninput="checkContrast(this.value)">
 
             <!-- Add this warning div -->
             <div id="contrastWarning" style="display:none; color: #ffeb3b; font-size: 10px; margin-top: 5px; line-height: 1.2;">
-                ⚠ This color might be too light to read! Try a darker shade.
+                ⚠ This color might be too light to read ._. Try a darker shade.
             </div>
             
             <button id="saveUserBtn" class="btn" style="width:100%; margin-top: 15px;" onclick="saveUser()">Save Changes</button>
@@ -431,8 +474,8 @@
     <div id="imgModal" class="overlay" onclick="closeModal('imgModal')">
         <div class="modal" onclick="event.stopPropagation()">
             <h4>Update Cover Art</h4>
-            <p style="font-size:11px; color:#888;">Recommended: 1:1 Ratio (Square)<br>Size: 300x300px or 500x500px</p>
-            <button class="btn" style="width:100%; background:var(--accent); padding:15px;" onclick="document.getElementById('imgInput').click()">📁 Choose Image</button>
+            <p style="font-size:11px; color:#888;"><strong>Recommended:</strong> 1:1 Ratio (Square)<br><strong>Size:</strong> 300x300px or 500x500px</p>
+            <button class="btn" style="width:100%; background:var(--accent); padding:15px;" onclick="document.getElementById('imgInput').click()">> Choose Image</button>
             <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="processImg(event)">
             <button class="btn" style="width:100%; margin-top:10px;" onclick="closeModal('imgModal')">Cancel</button>
         </div>
@@ -445,7 +488,9 @@
             <p style="font-size:12px; color:#aaa; text-align: left; line-height: 1.6;">
                 <strong>Version:</strong> 1.0<br>
                 <strong>Developer:</strong> Zolryq<br><br>
-                This website is made by vibe-coding using Gemini 3 and the github full code can be viewed here: <a href="https://github.com/Waraaaa/zolryq-vibe-sb">https://github.com/Waraaaa/zolryq-vibe-sb</a>.
+                <strong>This website is made by vibe-coding using Gemini 3</strong>
+                <br>
+                The Github full code can be viewed here: <a href="https://github.com/Waraaaa/zolryq-vibe-sb">https://github.com/Waraaaa/zolryq-vibe-sb</a>.
                 <br><br>
                 This is a private media player designed for personal use. All sounds are stored locally on your iPad's IndexedDB. 
                 <br><br>
