@@ -101,13 +101,13 @@ function renderItem(item) {
         <div class="card-loop-btn ${item.isLooping ? 'active' : ''}" 
              id="loop-btn-${item.id}" 
              onclick="toggleIndividualLoop(${item.id})">
-             <img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502344803306700992/8B23509B-DFD5-4F45-BA2F-AE55C761DEBC.png?ex=69ff5f21&is=69fe0da1&hm=2b2da820308f1b3e015e0fb2ea93d1202dd1ae7358da2dbaebd653502f967380&">
+             <img src="Zo-sb-assets/loop.png">
         </div>
              
         <img class="thumb" src="${item.image}" onclick="setImg(${item.id})">
         <div class="card-title-container" onclick="this.querySelector('.card-title').focus()">
             <span class="card-title" contenteditable="true" onblur="updateName(${item.id}, this)">${item.displayName}</span>
-            <img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502344369670197338/3CFD3480-0211-417A-8DFD-6F0C82A6FFA8.png?ex=69ff5eb9&is=69fe0d39&hm=9147ca382fb7aad686ef00b242645ba2fa6a95deaa2f5529822ce60cb6a62c12&" class="edit-icon" style="width:12px; height:12px; margin-left:5px;">
+            <img src="Zo-sb-assets/pencil.png" class="edit-icon" style="width:12px; height:12px; margin-left:5px;">
         </div>
         <input type="range" id="range-${item.id}" value="0" step="0.1" oninput="doSeek(${item.id})">
         <div style="display: flex; justify-content: space-between; font-size: 10px; color: #888; font-family: monospace; margin-bottom: 5px;">
@@ -115,9 +115,9 @@ function renderItem(item) {
             <span id="total-${item.id}">0:00</span>
         </div>
         <div class="controls">
-            <button class="btn" onclick="showInfo(${item.id})"><img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341923199909948/FC8A5BCF-C4DD-41A5-AD30-12ABE7AEA63A.png?ex=69ff5c72&is=69fe0af2&hm=4b388b079b5b7c3f8daf8e60c9a282015106072234966a230b2a1763653457fc&" class="icon"></button>
-            <button class="btn play-btn" id="play-${item.id}" onclick="pPlay(${item.id})"><img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341923644637376/FF9E85C5-3C39-4B80-B55D-BE5A935EDCE4.png?ex=69ff5c72&is=69fe0af2&hm=73a568fade8c38ca2ba46351d296196729de0b34f947643f5cab3241c568523d&" class="icon"></button>
-            <button class="btn" onclick="delItem(${item.id})"><img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341922742735038/C5B3F949-F477-4E70-AB33-562E7F4BA78B.png?ex=69ff5c72&is=69fe0af2&hm=313e979928ecf4879f2a549293454b3c56eb44d78cc292d4a3269233db3f4fa4&" class="icon"></button>
+            <button class="btn" onclick="showInfo(${item.id})"><img src="Zo-sb-assets/info.png" class="icon"></button>
+            <button class="btn play-btn" id="play-${item.id}" onclick="pPlay(${item.id})"><img src="Zo-sb-assets/play.png" class="icon"></button>
+            <button class="btn" onclick="delItem(${item.id})"><img src="Zo-sb-assets/trash.png" class="icon"></button>
         </div>
         <audio id="aud-${item.id}" src="${item.data}" ${item.isLooping ? 'loop' : ''}></audio>
     `;
@@ -143,7 +143,7 @@ function renderItem(item) {
             a.play();
         } else {
             // Manual Cleanup to move card down
-            document.getElementById(`play-${item.id}`).innerHTML = `<img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341923644637376/FF9E85C5-3C39-4B80-B55D-BE5A935EDCE4.png?ex=69ff5c72&is=69fe0af2&hm=73a568fade8c38ca2ba46351d296196729de0b34f947643f5cab3241c568523d&" class="icon">`;
+            document.getElementById(`play-${item.id}`).innerHTML = `<img src="Zo-sb-assets/play.png" class="icon">`;
             div.dataset.playing = "false";
             div.style.border = "1px solid #222";
             div.style.boxShadow = "none";
@@ -280,7 +280,7 @@ function pPlay(id) {
     if (a.paused) { 
         // START PLAYING
         a.play(); 
-        b.innerHTML = `<img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341923443048478/89F23901-D9B2-4769-B106-663A7461F4B3.png?ex=69ff5c72&is=69fe0af2&hm=b86ee5afcf183c320e50ad0c48bc610001042e33f14d3a32df9f08597742343a&" class="icon">`;
+        b.innerHTML = `<img src="Zo-sb-assets/play.png" class="icon">`;
         card.dataset.playing = "true"; // Mark as playing
         
         // Jump to absolute top
@@ -291,7 +291,7 @@ function pPlay(id) {
     } else { 
         // STOP PLAYING
         a.pause(); 
-        b.innerHTML = `<img src="https://cdn.discordapp.com/attachments/1502314230592966656/1502341923644637376/FF9E85C5-3C39-4B80-B55D-BE5A935EDCE4.png?ex=69ff5c72&is=69fe0af2&hm=73a568fade8c38ca2ba46351d296196729de0b34f947643f5cab3241c568523d&" class="icon">`;
+        b.innerHTML = `<img src="Zo-sb-assets/pause.png" class="icon">`;
         card.dataset.playing = "false"; // Mark as stopped
         
         // Find all cards in this grid that are still playing
