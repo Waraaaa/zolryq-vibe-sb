@@ -917,11 +917,11 @@
             if (isTooLight) {
                 warning.style.display = 'block';
                 warning.style.color = '#ffeb3b'; // Yellow warning
-                warning.innerText = '⚠ This color is very bright. It might be hard to read against light text!';
+                warning.innerText = '⚠ This color is very bright. Your eyes might hurt.';
             } else if (isTooDark) {
                 warning.style.display = 'block';
                 warning.style.color = '#ff5722'; // Orange/Red warning
-                warning.innerText = '⚠ This color is very dark. It might disappear against the background!';
+                warning.innerText = '⚠ This color is in fact very dark, or you just love dark mode very much.';
             } else {
                 warning.style.display = 'none';
             }
