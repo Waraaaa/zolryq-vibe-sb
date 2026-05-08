@@ -418,6 +418,29 @@
             };
             reader.readAsDataURL(file);
         }
+
+        function toggleSidebar() {
+            const side = document.getElementById('sideDrawer');
+            const over = document.getElementById('sideOverlay');
+            side.classList.toggle('active');
+            over.style.display = side.classList.contains('active') ? 'block' : 'none';
+        }
+        
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            const offset = 140; // Height of your sticky header
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = el.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            const offsetPosition = elementPosition - offset;
+        
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+            toggleSidebar(); // Close sidebar after clicking
+        }
+        
     </script>
 </body>
 </html>
