@@ -166,14 +166,6 @@
             opacity: 1;
         }
 
-        /* Pencil Icon Styling */
-        .edit-icon {
-            font-size: 10px;
-            margin-left: 5px;
-            opacity: 0.5;
-            vertical-align: middle;
-        }
-
         .thumb { 
             width: 100%; 
             aspect-ratio: 1 / 1; 
@@ -195,13 +187,36 @@
         }
         .card-title:focus { background: #333; }
 
-        /* Make the card-title container behave like a line of text */
+        /* Container for the name and pencil */
         .card-title-container {
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 5px;
-            cursor: text;
+            padding: 4px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        /* If the user is typing (focus), hide the pencil */
+        .card-title-container:focus-within .edit-icon {
+            display: none;
+        }
+
+        /* Make title take full width when editing */
+        .card-title-container:focus-within .card-title {
+            width: 100%;
+            text-align: center;
+            background: #222;
+            outline: none;
+        }
+
+        /* Pencil icon */
+        .edit-icon {
+            font-size: 12px;
+            margin-left: 6px;
+            opacity: 0.6;
+            pointer-events: none; /* Clicking the pencil clicks the container instead */
         }
         
         .controls { display: flex; gap: 5px; margin-top: 10px; }
