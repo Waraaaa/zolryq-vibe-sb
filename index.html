@@ -38,7 +38,7 @@
         /* Sidebar Drawer */
         .side-tab {
             position: fixed;
-            top: 50%; /* Center vertically */
+            top: 150px;
             left: 0;
             transform: translateY(-50%);
             background: var(--accent);
@@ -57,13 +57,13 @@
         }
         
         /* Hide tab when sidebar is open */
-        .side-tab.hidden { left: -40px; }
+        .side-tab.hidden { left: -50px; }
         
         /* Refined Sidebar */
         .sidebar {
             position: fixed;
             top: 0;
-            left: -280px; /* Completely off-screen */
+            left: -320px; /* Increased to ensure it's fully gone */
             width: 260px;
             height: 100%;
             background: #111;
@@ -73,7 +73,8 @@
             padding: 30px 20px;
         }
         
-        .sidebar.active { transform: translateX(280px); }
+        /* 4. Smooth Slide Action */
+        .sidebar.active { transform: translateX(320px); }
         
         /* Glassmorphism for Section Jumps */
         .side-item {
@@ -88,11 +89,13 @@
         
         .side-item:active { background: var(--accent); transform: scale(0.95); }
         
+        /* 5. Mobile/iPad Overlay fix */
         .sidebar-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px); /* Modern blur effect */
             z-index: 1999;
         }
 
@@ -152,7 +155,7 @@
     <div id="sfx-anchor" class="section-header"><span>🔊 SFX</span><span id="loopSfx" class="loop-btn" onclick="toggleLoop('sfx')">🔁</span></div>
     <div id="grid-sfx" class="grid"></div>
     
-    <div id="sfx-anchor" class="section-header"><span>🎵 MUSIC</span><span id="loopMusic" class="loop-btn" onclick="toggleLoop('music')">🔁</span></div>
+    <div id="music-anchor" class="section-header"><span>🎵 MUSIC</span><span id="loopMusic" class="loop-btn" onclick="toggleLoop('music')">🔁</span></div>
     <div id="grid-music" class="grid"></div>
 
     <!-- User Modal -->
