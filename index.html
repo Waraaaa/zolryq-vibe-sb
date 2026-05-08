@@ -141,10 +141,10 @@
         /* The Sphere Loop Button */
         .card-loop-btn {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 32px;
-            height: 32px;
+            top: 18px;
+            right: 18px;
+            width: 40px;
+            height: 40px;
             background: rgba(0, 0, 0, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
@@ -164,6 +164,14 @@
             box-shadow: 0 0 10px var(--accent);
             color: white;
             opacity: 1;
+        }
+
+        /* Pencil Icon Styling */
+        .edit-icon {
+            font-size: 10px;
+            margin-left: 5px;
+            opacity: 0.5;
+            vertical-align: middle;
         }
 
         .thumb { 
@@ -186,6 +194,15 @@
             text-overflow: ellipsis; /* Adds ... if name is too long */
         }
         .card-title:focus { background: #333; }
+
+        /* Make the card-title container behave like a line of text */
+        .card-title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 5px;
+            cursor: text;
+        }
         
         .controls { display: flex; gap: 5px; margin-top: 10px; }
         .btn { background: #222; border: none; color: white; border-radius: 6px; padding: 8px; flex: 1; cursor: pointer; font-size: 12px; }
@@ -302,7 +319,7 @@
     <!-- Website Info Modal -->
     <div id="webInfoModal" class="overlay" onclick="closeModal('webInfoModal')">
         <div class="modal" onclick="event.stopPropagation()">
-            <h4>About Da Soundboard</h4>
+            <h4>About Da Media Player</h4>
             <p style="font-size:12px; color:#aaa; text-align: left; line-height: 1.6;">
                 <strong>Version:</strong> 1.0<br>
                 <strong>Developer:</strong> Zolryq<br><br>
@@ -413,7 +430,10 @@
                      onclick="toggleIndividualLoop(${item.id})">🔁</div>
                      
                 <img class="thumb" src="${item.image}" onclick="setImg(${item.id})">
-                <span class="card-title" contenteditable="true" onblur="updateName(${item.id}, this)">${item.displayName}</span>
+                <div class="card-title-container" onclick="this.querySelector('.card-title').focus()">
+                    <span class="card-title" contenteditable="true" onblur="updateName(${item.id}, this)">${item.displayName}</span>
+                    <span class="edit-icon">✏️</span>
+                </div>
                 <input type="range" id="range-${item.id}" value="0" step="0.1" oninput="doSeek(${item.id})">
                 <div style="display: flex; justify-content: space-between; font-size: 10px; color: #888; font-family: monospace; margin-bottom: 5px;">
                     <span id="cur-${item.id}">0:00</span>
